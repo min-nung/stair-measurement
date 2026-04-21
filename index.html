@@ -1224,11 +1224,11 @@ function renderResults(c) {
   const rows = [];
   rows.push(rowHtml('梯間迴轉平台（寬 × 深）', fmtRange(r.platform.width), fmtRange(r.platform.depth)));
   rows.push(rowHtml('梯寬', fmtRange(r.stairWidth), null));
-  rows.push(rowHtml('梯深（換算階深）', fmtRange(r.stairDepth), null));
+  rows.push(rowHtml('梯深', fmtRange(r.stairDepth, 'cm', 0), null));
   rows.push(rowHtml('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum), null));
-  rows.push(rowHtml('梯階高度（不含第一階）', fmtRange(r.heightExceptFirst), null));
-  rows.push(rowHtml('各樓層第一階高', fmtRange(r.firstStepHeight), null));
-  rows.push(rowHtml('樓梯傾角', fmtRange(r.angle, '°'), null));
+  rows.push(rowHtml('梯階高度', fmtRange(r.heightExceptFirst), null));
+  rows.push(rowHtml('第一階高', fmtRange(r.firstStepHeight), null));
+  rows.push(rowHtml('樓梯傾角', fmtRange(r.angle, '°', 0), null));
 
   document.getElementById('resultsBody').innerHTML = rows.join('');
   document.getElementById('resultsOverlay').classList.add('active');
@@ -1248,11 +1248,11 @@ function resultsAsText(c) {
     `【${c.name}】量測結果`,
     line('梯間迴轉平台', fmtRange(r.platform.width), fmtRange(r.platform.depth)),
     line('梯寬', fmtRange(r.stairWidth)),
-    line('梯深（換算階深）', fmtRange(r.stairDepth)),
+    line('梯深', fmtRange(r.stairDepth, 'cm', 0)),
     line('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum)),
-    line('梯階高度（不含第一階）', fmtRange(r.heightExceptFirst)),
-    line('各樓層第一階高', fmtRange(r.firstStepHeight)),
-    line('樓梯傾角', fmtRange(r.angle, '°'))
+    line('梯階高度', fmtRange(r.heightExceptFirst)),
+    line('第一階高', fmtRange(r.firstStepHeight)),
+    line('樓梯傾角', fmtRange(r.angle, '°', 0))
   ];
   return lines.join('\n');
 }
