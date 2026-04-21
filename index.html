@@ -597,25 +597,6 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ---------- Print ---------- */
-  @media print {
-    body { background: #fff; }
-    .app, header.top, .case-title-wrap { display: none !important; }
-    .results-overlay {
-      position: static !important;
-      background: none !important;
-      display: block !important;
-    }
-    .results-modal {
-      max-height: none !important;
-      box-shadow: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-    }
-    .results-modal .handle,
-    .results-actions { display: none !important; }
-    table.results { box-shadow: none; border: 1px solid #666; }
-    table.results thead th { background: #333 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
 
   /* ---------- Small tweaks ---------- */
   @media (max-width: 380px) {
@@ -687,7 +668,6 @@
       <tbody id="resultsBody"></tbody>
     </table>
     <div class="results-actions">
-      <button id="printBtn">🖨 列印 / 存 PDF</button>
       <button id="copyBtn">複製文字</button>
       <button class="close" id="closeResultsBtn">關閉</button>
     </div>
@@ -1384,7 +1364,6 @@ document.getElementById('resultsOverlay').addEventListener('click', e => {
     document.getElementById('resultsOverlay').classList.remove('active');
   }
 });
-document.getElementById('printBtn').addEventListener('click', () => { window.print(); });
 document.getElementById('copyBtn').addEventListener('click', async () => {
   const c = state.cases[state.currentCaseId];
   if (!c) return;
