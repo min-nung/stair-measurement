@@ -1138,8 +1138,8 @@ function computeResults(c) {
   // 6. 各樓層第一階高
   const firstStepHeights = stairs.map(s => s.steps[0] ? toNum(s.steps[0].height) : null).filter(v => v !== null);
 
-  // 7. 樓梯傾角 — per spec: arctan(階高/斜邊長) → degrees
-  const angles = stairs.flatMap(s => s.steps.map(st => {
+  // 7. 樓梯傾角 — 不含每段樓梯的第一階（第一階無前一階可測斜邊）
+  const angles = stairs.flatMap(s => s.steps.slice(1).map(st => {
     const h = toNum(st.height);
     const sl = toNum(st.slope);
     if (h === null || sl === null || sl <= 0) return null;
