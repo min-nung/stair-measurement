@@ -631,7 +631,6 @@
     <div class="bar">
       <button class="back-btn" id="backBtn" style="display:none;">‹ 返回</button>
       <h1 id="headerTitle">爬梯機評估</h1>
-      <button class="action-btn" id="exportBtn" style="display:none;">匯出</button>
     </div>
     <div class="subtitle" id="subtitle">樓梯量測記錄</div>
   </header>
@@ -991,9 +990,9 @@ function renderEditor() {
     addPlatform.disabled = true;
   }
 
-  // Calc button enabled only if last block is stair (proper ending)
+  // Calc button enabled as long as there is at least one stair block
   const calcBtn = document.getElementById('calcBtn');
-  calcBtn.disabled = !last || last.type !== 'stair';
+  calcBtn.disabled = !c.blocks.some(b => b.type === 'stair');
 }
 
 function renderStair(b, num, canDelete) {
@@ -1266,7 +1265,6 @@ function showList() {
   document.getElementById('listView').style.display = '';
   document.getElementById('editorView').style.display = 'none';
   document.getElementById('backBtn').style.display = 'none';
-  document.getElementById('exportBtn').style.display = 'none';
   document.getElementById('headerTitle').textContent = '爬梯機評估';
   document.getElementById('subtitle').textContent = '樓梯量測記錄';
   renderList();
@@ -1278,7 +1276,6 @@ function showEditor(caseId) {
   document.getElementById('listView').style.display = 'none';
   document.getElementById('editorView').style.display = '';
   document.getElementById('backBtn').style.display = '';
-  document.getElementById('exportBtn').style.display = '';
   document.getElementById('headerTitle').textContent = '編輯量測';
   document.getElementById('subtitle').textContent = state.cases[caseId].name;
   renderEditor();
@@ -1407,21 +1404,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
   }
 });
 
-// Export (JSON) — single case backup
-document.getElementById('exportBtn').addEventListener('click', () => {
-  const c = state.cases[state.currentCaseId];
-  if (!c) return;
-  const blob = new Blob([JSON.stringify(c, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const safeName = c.name.replace(/[\\/:*?"<>|]/g, '_');
-  a.href = url;
-  a.download = `${safeName}.json`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
 
 /* ==========================================================================
    Boot
