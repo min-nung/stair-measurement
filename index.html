@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2c3e50">
+<title>爬梯機評估 — 樓梯量測記錄</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --bg: #f4f1ea;
+    --surface: #ffffff;
+    --surface-2: #faf7f0;
+    --ink: #1f2937;
+    --ink-soft: #4b5563;
+    --muted: #9ca3af;
+    --line: #e5e1d8;
+    --brand: #2c3e50;
+    --brand-soft: #34495e;
+    --accent: #c0724a;
+    --accent-soft: #e8a984;
+    --stair: #3e5c76;
+    --stair-soft: #dce5ef;
+    --platform: #a55c3a;
+    --platform-soft: #f2dac9;
+    --danger: #b23a3a;
+    --ok: #3c7a4c;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.06);
+    --shadow-md: 0 4px 14px rgba(17, 24, 39, 0.08);
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC",
+      "Microsoft JhengHei", "Noto Sans TC", Roboto, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button { font: inherit; color: inherit; cursor: pointer; }
+  input, select, textarea { font: inherit; color: inherit; }
+
+  .app {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 16px 96px;
+  }
+
+  /* ---------- Header ---------- */
+  header.top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    padding: 14px 0 10px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  header.top .bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  header.top h1 {
+    margin: 0;
+    font-size: 17px;
+    letter-spacing: 0.5px;
+    color: var(--brand);
+    flex: 1;
+    text-align: center;
+  }
+  header.top .back-btn,
+  header.top .action-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+  header.top .back-btn:active,
+  header.top .action-btn:active { background: var(--surface-2); }
+  .subtitle {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ---------- Case List ---------- */
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 8px 4px 12px;
+  }
+  .list-header h2 {
+    margin: 0;
+    font-size: 15px;
+    color: var(--ink-soft);
+    font-weight: 600;
+  }
+  .count-badge {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .case-item {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: transform 0.1s ease;
+  }
+  .case-item:active { transform: scale(0.99); }
+  .case-item .info {
+    flex: 1;
+    min-width: 0;
+  }
+  .case-item .name {
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .case-item .meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .case-item .open-btn {
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .case-item .del-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--danger);
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 56px 16px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .empty svg { opacity: 0.4; margin-bottom: 10px; }
+
+  /* ---------- New Case Form ---------- */
+  .new-case {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .new-case label {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .new-case .row {
+    display: flex;
+    gap: 8px;
+  }
+  .new-case input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface-2);
+    outline: none;
+    font-size: 15px;
+  }
+  .new-case input:focus {
+    border-color: var(--brand);
+    background: #fff;
+  }
+  .new-case button.primary {
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  /* ---------- Editor Blocks ---------- */
+  .case-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    box-shadow: var(--shadow-sm);
+  }
+  .case-title-wrap input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--ink);
+    outline: none;
+    padding: 4px 0;
+    border-bottom: 1px dashed transparent;
+  }
+  .case-title-wrap input:focus { border-bottom-color: var(--line); }
+  .save-indicator {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .save-indicator.saved { color: var(--ok); }
+
+  .block {
+    background: var(--surface);
+    border-radius: var(--radius);
+    margin-bottom: 14px;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .block.stair { border-left: 4px solid var(--stair); }
+  .block.platform { border-left: 4px solid var(--platform); }
+
+  .block-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .block.stair .block-header { background: var(--stair-soft); }
+  .block.platform .block-header { background: var(--platform-soft); }
+
+  .block-header .title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--brand);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .block.stair .block-header .title { color: var(--stair); }
+  .block.platform .block-header .title { color: var(--platform); }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.05);
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .block-header .remove-block {
+    background: transparent;
+    border: 1px solid rgba(0,0,0,0.1);
+    color: var(--danger);
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .block-body { padding: 14px 16px; }
+
+  .step-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 1fr 36px;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .step-row .idx {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    text-align: center;
+  }
+  .step-row .field {
+    position: relative;
+  }
+  .step-row input,
+  .field-group input,
+  .width-field input {
+    width: 100%;
+    padding: 10px 34px 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface-2);
+    outline: none;
+    font-size: 15px;
+    text-align: right;
+  }
+  .step-row input:focus,
+  .field-group input:focus,
+  .width-field input:focus {
+    border-color: var(--stair);
+    background: #fff;
+  }
+  .block.platform .field-group input:focus,
+  .block.platform .width-field input:focus {
+    border-color: var(--platform);
+  }
+  .unit {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .field-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    display: block;
+  }
+  .step-row .del-step {
+    background: transparent;
+    border: none;
+    color: var(--danger);
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 16px;
+    line-height: 1;
+  }
+  .step-row .del-step:active { background: rgba(178,58,58,0.08); }
+
+  .header-row {
+    display: grid;
+    grid-template-columns: 44px 1fr 1fr 36px;
+    gap: 8px;
+    margin-bottom: 6px;
+    padding: 0 2px;
+  }
+  .header-row span {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 500;
+    text-align: center;
+  }
+  .header-row span:nth-child(1) { text-align: center; }
+  .header-row span:nth-child(2),
+  .header-row span:nth-child(3) { text-align: right; padding-right: 10px; }
+
+  .add-step-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px dashed var(--stair);
+    color: var(--stair);
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+  .add-step-btn:active { background: var(--stair-soft); }
+
+  .width-field {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+    position: relative;
+  }
+  .width-field .field-label { font-weight: 600; color: var(--ink-soft); }
+  .width-field .field {
+    position: relative;
+    max-width: 220px;
+  }
+
+  .field-group {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .field-group .field { position: relative; }
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* ---------- Flow Buttons ---------- */
+  .flow-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 18px 0 8px;
+  }
+  .flow-actions.single { grid-template-columns: 1fr; }
+  .flow-btn {
+    background: #fff;
+    border: 1.5px solid var(--line);
+    color: var(--ink-soft);
+    padding: 14px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .flow-btn.stair { color: var(--stair); border-color: var(--stair-soft); background: var(--stair-soft); }
+  .flow-btn.platform { color: var(--platform); border-color: var(--platform-soft); background: var(--platform-soft); }
+  .flow-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .flow-btn:active:not(:disabled) { transform: scale(0.98); }
+
+  .calc-btn {
+    margin-top: 20px;
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 16px;
+    border-radius: var(--radius);
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    letter-spacing: 1px;
+  }
+  .calc-btn:active { background: #a75e3a; }
+  .calc-btn:disabled { opacity: 0.5; background: var(--muted); box-shadow: none; }
+
+  /* ---------- Results ---------- */
+  .results-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(17,24,39,0.5);
+    display: none;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 50;
+    overflow-y: auto;
+  }
+  .results-overlay.active { display: flex; }
+  .results-modal {
+    background: var(--bg);
+    width: 100%;
+    max-width: 720px;
+    border-radius: 16px 16px 0 0;
+    padding: 18px 16px 32px;
+    max-height: 92vh;
+    overflow-y: auto;
+    box-shadow: 0 -8px 30px rgba(0,0,0,0.2);
+  }
+  .results-modal .handle {
+    width: 40px;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    margin: 0 auto 14px;
+  }
+  .results-modal h2 {
+    margin: 0 0 4px;
+    font-size: 18px;
+    color: var(--brand);
+    text-align: center;
+  }
+  .results-modal .sub {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  table.results {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    font-size: 14px;
+  }
+  table.results thead th {
+    background: var(--brand);
+    color: #fff;
+    padding: 10px 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+  }
+  table.results td {
+    padding: 11px 10px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+  table.results td.label {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    width: 40%;
+    background: var(--surface-2);
+  }
+  table.results td.value {
+    font-size: 14px;
+    color: var(--ink);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  table.results td.value .unit-sm { font-size: 11px; color: var(--muted); margin-left: 2px; font-weight: normal; }
+  table.results td.none { color: var(--muted); font-weight: normal; }
+  table.results tr:last-child td { border-bottom: none; }
+
+  .results-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .results-actions button {
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--ink-soft);
+  }
+  .results-actions button.close { grid-column: 1 / -1; background: var(--brand); color: #fff; border-color: var(--brand); }
+
+  /* ---------- Toast ---------- */
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--brand);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 22px;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.25s ease;
+    z-index: 100;
+    box-shadow: var(--shadow-md);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ---------- Print ---------- */
+  @media print {
+    body { background: #fff; }
+    .app, header.top, .case-title-wrap { display: none !important; }
+    .results-overlay {
+      position: static !important;
+      background: none !important;
+      display: block !important;
+    }
+    .results-modal {
+      max-height: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+    }
+    .results-modal .handle,
+    .results-actions { display: none !important; }
+    table.results { box-shadow: none; border: 1px solid #666; }
+    table.results thead th { background: #333 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  /* ---------- Small tweaks ---------- */
+  @media (max-width: 380px) {
+    .step-row { grid-template-columns: 36px 1fr 1fr 30px; gap: 6px; }
+    .header-row { grid-template-columns: 36px 1fr 1fr 30px; gap: 6px; }
+    .step-row input, .field-group input, .width-field input { padding: 10px 28px 10px 10px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="bar">
+      <button class="back-btn" id="backBtn" style="display:none;">‹ 返回</button>
+      <h1 id="headerTitle">爬梯機評估</h1>
+      <button class="action-btn" id="exportBtn" style="display:none;">匯出</button>
+    </div>
+    <div class="subtitle" id="subtitle">樓梯量測記錄</div>
+  </header>
+
+  <!-- Case List View -->
+  <section id="listView">
+    <div class="new-case">
+      <label for="newCaseName">新增個案</label>
+      <div class="row">
+        <input id="newCaseName" type="text" placeholder="輸入個案名稱（例：王先生 3F 公寓）" maxlength="40" autocomplete="off">
+        <button class="primary" id="createCaseBtn">建立</button>
+      </div>
+    </div>
+
+    <div class="list-header">
+      <h2>個案清單</h2>
+      <span class="count-badge" id="caseCount"></span>
+    </div>
+    <div id="caseList"></div>
+  </section>
+
+  <!-- Editor View -->
+  <section id="editorView" style="display:none;">
+    <div class="case-title-wrap">
+      <input id="caseTitleEdit" type="text" maxlength="40" placeholder="個案名稱">
+      <span class="save-indicator saved" id="saveIndicator">已儲存</span>
+    </div>
+
+    <div id="blocksContainer"></div>
+
+    <div class="flow-actions" id="flowActions">
+      <button class="flow-btn stair" id="addStairBtn">＋ 新增樓梯段</button>
+      <button class="flow-btn platform" id="addPlatformBtn">＋ 新增迴轉平台</button>
+    </div>
+
+    <button class="calc-btn" id="calcBtn">計算結果</button>
+  </section>
+</div>
+
+<!-- Results Modal -->
+<div class="results-overlay" id="resultsOverlay">
+  <div class="results-modal" id="resultsModal">
+    <div class="handle"></div>
+    <h2 id="resultsTitle">量測結果</h2>
+    <div class="sub" id="resultsSub"></div>
+    <table class="results">
+      <thead>
+        <tr>
+          <th style="width:40%">項目</th>
+          <th>寬 / 數值</th>
+          <th>深</th>
+        </tr>
+      </thead>
+      <tbody id="resultsBody"></tbody>
+    </table>
+    <div class="results-actions">
+      <button id="printBtn">🖨 列印 / 存 PDF</button>
+      <button id="copyBtn">複製文字</button>
+      <button class="close" id="closeResultsBtn">關閉</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================================
+   State & Storage
+   ========================================================================== */
+const STORAGE_KEY = 'stairAssessmentCases.v1';
+let state = {
+  cases: {},         // { caseId: { id, name, createdAt, updatedAt, blocks: [] } }
+  currentCaseId: null
+};
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.cases) state.cases = parsed.cases;
+    }
+  } catch (e) { console.warn('載入失敗', e); }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ cases: state.cases }));
+  } catch (e) {
+    console.error('儲存失敗', e);
+    showToast('儲存失敗，儲存空間可能已滿');
+  }
+}
+
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+
+/* ==========================================================================
+   Case CRUD
+   ========================================================================== */
+function createCase(name) {
+  const trimmed = (name || '').trim();
+  if (!trimmed) { showToast('請輸入個案名稱'); return null; }
+  // Name uniqueness check (case-sensitive exact match)
+  for (const id in state.cases) {
+    if (state.cases[id].name === trimmed) {
+      showToast('已存在相同名稱的個案');
+      return null;
+    }
+  }
+  const id = uid();
+  const now = Date.now();
+  state.cases[id] = {
+    id,
+    name: trimmed,
+    createdAt: now,
+    updatedAt: now,
+    // Start with one empty stair segment (flow always starts with stair)
+    blocks: [makeStair(1)]
+  };
+  saveState();
+  return id;
+}
+
+function deleteCase(id) {
+  if (!state.cases[id]) return;
+  if (!confirm(`確定刪除個案「${state.cases[id].name}」？此動作無法復原。`)) return;
+  delete state.cases[id];
+  saveState();
+  renderList();
+}
+
+function touchCase(id) {
+  if (state.cases[id]) {
+    state.cases[id].updatedAt = Date.now();
+  }
+}
+
+function renameCurrentCase(newName) {
+  const trimmed = (newName || '').trim();
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  if (!trimmed) {
+    // Ignore blank (revert on blur elsewhere)
+    return;
+  }
+  // Check for collision with other cases
+  for (const id in state.cases) {
+    if (id !== c.id && state.cases[id].name === trimmed) {
+      showToast('已存在相同名稱的個案');
+      document.getElementById('caseTitleEdit').value = c.name;
+      return;
+    }
+  }
+  c.name = trimmed;
+  touchCase(c.id);
+  saveState();
+  showSaved();
+}
+
+/* ==========================================================================
+   Block helpers
+   ========================================================================== */
+function makeStair() {
+  return {
+    id: uid(),
+    type: 'stair',
+    steps: [{ id: uid(), height: '', slope: '' }],
+    width: ''
+  };
+}
+
+function makePlatform() {
+  return {
+    id: uid(),
+    type: 'platform',
+    width: '',
+    depth1: '',
+    depth2: ''
+  };
+}
+
+function addBlock(type) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const last = c.blocks[c.blocks.length - 1];
+  if (type === 'stair') {
+    if (last && last.type === 'stair') { showToast('前一項為樓梯段，請先新增迴轉平台'); return; }
+    c.blocks.push(makeStair());
+  } else {
+    if (!last || last.type !== 'stair') { showToast('迴轉平台需接在樓梯段之後'); return; }
+    // Also prevent starting with platform
+    c.blocks.push(makePlatform());
+  }
+  touchCase(c.id);
+  saveState();
+  renderEditor();
+  // Scroll to newly added block
+  setTimeout(() => {
+    const container = document.getElementById('blocksContainer');
+    const last = container.lastElementChild;
+    if (last) last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
+}
+
+function removeBlock(blockId) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const idx = c.blocks.findIndex(b => b.id === blockId);
+  if (idx === -1) return;
+  // Only allow removing last block, and not the very first stair (flow must start with stair)
+  if (idx !== c.blocks.length - 1) {
+    showToast('僅可刪除最後一個區塊以保持順序');
+    return;
+  }
+  if (idx === 0) {
+    showToast('至少需保留第一個樓梯段');
+    return;
+  }
+  if (!confirm('確定刪除此區塊？')) return;
+  c.blocks.splice(idx, 1);
+  touchCase(c.id);
+  saveState();
+  renderEditor();
+}
+
+function addStep(blockId) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const b = c.blocks.find(x => x.id === blockId);
+  if (!b || b.type !== 'stair') return;
+  b.steps.push({ id: uid(), height: '', slope: '' });
+  touchCase(c.id);
+  saveState();
+  renderEditor();
+  setTimeout(() => {
+    const row = document.querySelector(`[data-block-id="${blockId}"] .step-row:last-of-type input`);
+    if (row) row.focus();
+  }, 50);
+}
+
+function removeStep(blockId, stepId) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const b = c.blocks.find(x => x.id === blockId);
+  if (!b || b.type !== 'stair') return;
+  if (b.steps.length <= 1) { showToast('至少需保留一階'); return; }
+  b.steps = b.steps.filter(s => s.id !== stepId);
+  touchCase(c.id);
+  saveState();
+  renderEditor();
+}
+
+/* ==========================================================================
+   Field update (auto-save)
+   ========================================================================== */
+function updateField(blockId, field, value, stepId) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const b = c.blocks.find(x => x.id === blockId);
+  if (!b) return;
+  if (stepId) {
+    const st = b.steps.find(s => s.id === stepId);
+    if (st) st[field] = value;
+  } else {
+    b[field] = value;
+  }
+  touchCase(c.id);
+  saveState();
+  showSaved();
+}
+
+/* ==========================================================================
+   Rendering — List View
+   ========================================================================== */
+function renderList() {
+  const list = document.getElementById('caseList');
+  const entries = Object.values(state.cases).sort((a, b) => b.updatedAt - a.updatedAt);
+  document.getElementById('caseCount').textContent = entries.length ? `${entries.length} 筆` : '';
+
+  if (entries.length === 0) {
+    list.innerHTML = `
+      <div class="empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6"/>
+        </svg>
+        <div>尚無個案，輸入名稱建立第一筆</div>
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = entries.map(c => {
+    const stairCount = c.blocks.filter(b => b.type === 'stair').length;
+    const platformCount = c.blocks.filter(b => b.type === 'platform').length;
+    const stepTotal = c.blocks.filter(b => b.type === 'stair').reduce((s, b) => s + b.steps.length, 0);
+    const meta = `${stairCount} 段樓梯・${platformCount} 個迴轉平台・${stepTotal} 階 ・ ${formatDate(c.updatedAt)}`;
+    return `
+      <div class="case-item">
+        <div class="info">
+          <div class="name">${escapeHtml(c.name)}</div>
+          <div class="meta">${meta}</div>
+        </div>
+        <button class="del-btn" data-del="${c.id}">刪除</button>
+        <button class="open-btn" data-open="${c.id}">開啟</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  const now = new Date();
+  const sameDay = d.toDateString() === now.toDateString();
+  if (sameDay) return `今天 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[c]));
+}
+
+/* ==========================================================================
+   Rendering — Editor View
+   ========================================================================== */
+function renderEditor() {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  document.getElementById('caseTitleEdit').value = c.name;
+
+  const container = document.getElementById('blocksContainer');
+  let stairNum = 0, platformNum = 0;
+  container.innerHTML = c.blocks.map((b, idx) => {
+    const isLast = idx === c.blocks.length - 1;
+    const canDelete = isLast && idx > 0;
+    if (b.type === 'stair') {
+      stairNum++;
+      return renderStair(b, stairNum, canDelete);
+    } else {
+      platformNum++;
+      return renderPlatform(b, platformNum, canDelete);
+    }
+  }).join('');
+
+  // Update flow buttons
+  const last = c.blocks[c.blocks.length - 1];
+  const addStair = document.getElementById('addStairBtn');
+  const addPlatform = document.getElementById('addPlatformBtn');
+  if (last && last.type === 'stair') {
+    addStair.disabled = true;
+    addPlatform.disabled = false;
+  } else {
+    addStair.disabled = false;
+    addPlatform.disabled = true;
+  }
+
+  // Calc button enabled only if last block is stair (proper ending)
+  const calcBtn = document.getElementById('calcBtn');
+  calcBtn.disabled = !last || last.type !== 'stair';
+}
+
+function renderStair(b, num, canDelete) {
+  const stepsHtml = b.steps.map((s, i) => `
+    <div class="step-row">
+      <span class="idx">第${i+1}階</span>
+      <div class="field">
+        <input type="number" inputmode="decimal" step="0.1" min="0"
+               data-block="${b.id}" data-step="${s.id}" data-field="height"
+               value="${escapeAttr(s.height)}" placeholder="階高" aria-label="第${i+1}階階高">
+        <span class="unit">cm</span>
+      </div>
+      <div class="field">
+        <input type="number" inputmode="decimal" step="0.1" min="0"
+               data-block="${b.id}" data-step="${s.id}" data-field="slope"
+               value="${escapeAttr(s.slope)}" placeholder="斜邊長" aria-label="第${i+1}階斜邊長">
+        <span class="unit">cm</span>
+      </div>
+      <button class="del-step" data-del-step data-block="${b.id}" data-step="${s.id}" aria-label="刪除此階">✕</button>
+    </div>
+  `).join('');
+
+  return `
+    <div class="block stair" data-block-id="${b.id}">
+      <div class="block-header">
+        <div class="title">
+          <span>第 ${num} 段樓梯</span>
+          <span class="tag">${b.steps.length} 階</span>
+        </div>
+        ${canDelete ? `<button class="remove-block" data-remove-block="${b.id}">刪除</button>` : ''}
+      </div>
+      <div class="block-body">
+        <div class="header-row">
+          <span>階序</span><span>階高</span><span>斜邊長</span><span></span>
+        </div>
+        ${stepsHtml}
+        <button class="add-step-btn" data-add-step="${b.id}">＋ 新增一階</button>
+        <div class="width-field">
+          <label class="field-label">梯寬（整段樓梯）</label>
+          <div class="field">
+            <input type="number" inputmode="decimal" step="0.1" min="0"
+                   data-block="${b.id}" data-field="width"
+                   value="${escapeAttr(b.width)}" placeholder="梯寬">
+            <span class="unit">cm</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPlatform(b, num, canDelete) {
+  return `
+    <div class="block platform" data-block-id="${b.id}">
+      <div class="block-header">
+        <div class="title">
+          <span>第 ${num} 個迴轉平台</span>
+        </div>
+        ${canDelete ? `<button class="remove-block" data-remove-block="${b.id}">刪除</button>` : ''}
+      </div>
+      <div class="block-body">
+        <div class="field-group">
+          <div>
+            <label class="field-label">平台寬度</label>
+            <div class="field">
+              <input type="number" inputmode="decimal" step="0.1" min="0"
+                     data-block="${b.id}" data-field="width"
+                     value="${escapeAttr(b.width)}" placeholder="寬度">
+              <span class="unit">cm</span>
+            </div>
+          </div>
+          <div class="two-col">
+            <div>
+              <label class="field-label">平台深度 ①</label>
+              <div class="field">
+                <input type="number" inputmode="decimal" step="0.1" min="0"
+                       data-block="${b.id}" data-field="depth1"
+                       value="${escapeAttr(b.depth1)}" placeholder="深度">
+                <span class="unit">cm</span>
+              </div>
+            </div>
+            <div>
+              <label class="field-label">平台深度 ②（可選）</label>
+              <div class="field">
+                <input type="number" inputmode="decimal" step="0.1" min="0"
+                       data-block="${b.id}" data-field="depth2"
+                       value="${escapeAttr(b.depth2)}" placeholder="深度">
+                <span class="unit">cm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function escapeAttr(v) {
+  if (v === null || v === undefined || v === '') return '';
+  return String(v).replace(/"/g, '&quot;');
+}
+
+/* ==========================================================================
+   Calculation
+   ========================================================================== */
+function toNum(v) {
+  if (v === '' || v === null || v === undefined) return null;
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function calcRange(values) {
+  const nums = values.filter(v => v !== null && Number.isFinite(v));
+  if (nums.length === 0) return null;
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  return { min, max, count: nums.length };
+}
+
+function fmtNum(n, decimals = 1) {
+  if (n === null || n === undefined || !Number.isFinite(n)) return '—';
+  const rounded = Math.round(n * Math.pow(10, decimals)) / Math.pow(10, decimals);
+  return String(rounded);
+}
+
+function fmtRange(r, unit = 'cm', decimals = 1) {
+  if (!r) return { text: '—', empty: true };
+  const a = fmtNum(r.min, decimals);
+  const b = fmtNum(r.max, decimals);
+  const text = a === b ? `${a}` : `${a}–${b}`;
+  return { text, unit, empty: false };
+}
+
+function computeResults(c) {
+  const stairs = c.blocks.filter(b => b.type === 'stair');
+  const platforms = c.blocks.filter(b => b.type === 'platform');
+
+  // 1. 梯間迴轉平台
+  const platformWidths = platforms.map(p => toNum(p.width)).filter(v => v !== null);
+  const platformDepths = platforms.flatMap(p => [toNum(p.depth1), toNum(p.depth2)]).filter(v => v !== null);
+
+  // 2. 梯寬
+  const stairWidths = stairs.map(s => toNum(s.width)).filter(v => v !== null);
+
+  // 3. 梯深 (all slope lengths across all steps)
+  const allSlopes = stairs.flatMap(s => s.steps.map(st => toNum(st.slope))).filter(v => v !== null);
+
+  // 4. 相鄰兩斜邊加總 (within each stair segment)
+  const adjSlopeSums = [];
+  stairs.forEach(s => {
+    for (let i = 0; i < s.steps.length - 1; i++) {
+      const a = toNum(s.steps[i].slope);
+      const b = toNum(s.steps[i+1].slope);
+      if (a !== null && b !== null) adjSlopeSums.push(a + b);
+    }
+  });
+
+  // 5. 梯階高度（不含第一階）
+  const heightsExceptFirst = stairs.flatMap(s => s.steps.slice(1).map(st => toNum(st.height))).filter(v => v !== null);
+
+  // 6. 各樓層第一階高
+  const firstStepHeights = stairs.map(s => s.steps[0] ? toNum(s.steps[0].height) : null).filter(v => v !== null);
+
+  // 7. 樓梯傾角 — per spec: arctan(階高/斜邊長) → degrees
+  const angles = stairs.flatMap(s => s.steps.map(st => {
+    const h = toNum(st.height);
+    const sl = toNum(st.slope);
+    if (h === null || sl === null || sl <= 0) return null;
+    return Math.atan(h / sl) * 180 / Math.PI;
+  })).filter(v => v !== null);
+
+  return {
+    platform: {
+      width: calcRange(platformWidths),
+      depth: calcRange(platformDepths)
+    },
+    stairWidth: calcRange(stairWidths),
+    slope: calcRange(allSlopes),
+    adjSlopeSum: calcRange(adjSlopeSums),
+    heightExceptFirst: calcRange(heightsExceptFirst),
+    firstStepHeight: calcRange(firstStepHeights),
+    angle: calcRange(angles)
+  };
+}
+
+function renderResults(c) {
+  const r = computeResults(c);
+  const stairCount = c.blocks.filter(b => b.type === 'stair').length;
+  const platformCount = c.blocks.filter(b => b.type === 'platform').length;
+  const stepTotal = c.blocks.filter(b => b.type === 'stair').reduce((s, b) => s + b.steps.length, 0);
+
+  document.getElementById('resultsTitle').textContent = c.name;
+  document.getElementById('resultsSub').textContent =
+    `量測結果 ・ ${stairCount} 段樓梯 ・ ${platformCount} 個迴轉平台 ・ 共 ${stepTotal} 階`;
+
+  const rowHtml = (label, widthCell, depthCell) => {
+    return `<tr>
+      <td class="label">${label}</td>
+      <td class="value ${widthCell.empty ? 'none' : ''}">${widthCell.empty ? '—' : `${widthCell.text}<span class="unit-sm">${widthCell.unit||''}</span>`}</td>
+      <td class="value ${depthCell && depthCell.empty ? 'none' : ''}">${depthCell ? (depthCell.empty ? '—' : `${depthCell.text}<span class="unit-sm">${depthCell.unit||''}</span>`) : ''}</td>
+    </tr>`;
+  };
+
+  const rows = [];
+  rows.push(rowHtml('梯間迴轉平台（寬 × 深）', fmtRange(r.platform.width), fmtRange(r.platform.depth)));
+  rows.push(rowHtml('梯寬', fmtRange(r.stairWidth), null));
+  rows.push(rowHtml('梯深（斜邊長）', fmtRange(r.slope), null));
+  rows.push(rowHtml('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum), null));
+  rows.push(rowHtml('梯階高度（不含第一階）', fmtRange(r.heightExceptFirst), null));
+  rows.push(rowHtml('各樓層第一階高', fmtRange(r.firstStepHeight), null));
+  rows.push(rowHtml('樓梯傾角', fmtRange(r.angle, '°'), null));
+
+  document.getElementById('resultsBody').innerHTML = rows.join('');
+  document.getElementById('resultsOverlay').classList.add('active');
+}
+
+function resultsAsText(c) {
+  const r = computeResults(c);
+  const line = (label, w, d) => {
+    const wt = w.empty ? '—' : `${w.text}${w.unit?' '+w.unit:''}`;
+    if (d) {
+      const dt = d.empty ? '—' : `${d.text}${d.unit?' '+d.unit:''}`;
+      return `${label}：寬 ${wt}　深 ${dt}`;
+    }
+    return `${label}：${wt}`;
+  };
+  const lines = [
+    `【${c.name}】量測結果`,
+    line('梯間迴轉平台', fmtRange(r.platform.width), fmtRange(r.platform.depth)),
+    line('梯寬', fmtRange(r.stairWidth)),
+    line('梯深（斜邊長）', fmtRange(r.slope)),
+    line('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum)),
+    line('梯階高度（不含第一階）', fmtRange(r.heightExceptFirst)),
+    line('各樓層第一階高', fmtRange(r.firstStepHeight)),
+    line('樓梯傾角', fmtRange(r.angle, '°'))
+  ];
+  return lines.join('\n');
+}
+
+/* ==========================================================================
+   Navigation
+   ========================================================================== */
+function showList() {
+  state.currentCaseId = null;
+  document.getElementById('listView').style.display = '';
+  document.getElementById('editorView').style.display = 'none';
+  document.getElementById('backBtn').style.display = 'none';
+  document.getElementById('exportBtn').style.display = 'none';
+  document.getElementById('headerTitle').textContent = '爬梯機評估';
+  document.getElementById('subtitle').textContent = '樓梯量測記錄';
+  renderList();
+}
+
+function showEditor(caseId) {
+  if (!state.cases[caseId]) return;
+  state.currentCaseId = caseId;
+  document.getElementById('listView').style.display = 'none';
+  document.getElementById('editorView').style.display = '';
+  document.getElementById('backBtn').style.display = '';
+  document.getElementById('exportBtn').style.display = '';
+  document.getElementById('headerTitle').textContent = '編輯量測';
+  document.getElementById('subtitle').textContent = state.cases[caseId].name;
+  renderEditor();
+  window.scrollTo(0, 0);
+}
+
+/* ==========================================================================
+   Toast & indicators
+   ========================================================================== */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+let saveTimer;
+function showSaved() {
+  const el = document.getElementById('saveIndicator');
+  el.textContent = '儲存中…';
+  el.classList.remove('saved');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    el.textContent = '已儲存';
+    el.classList.add('saved');
+  }, 250);
+}
+
+/* ==========================================================================
+   Event wiring
+   ========================================================================== */
+document.getElementById('createCaseBtn').addEventListener('click', () => {
+  const input = document.getElementById('newCaseName');
+  const id = createCase(input.value);
+  if (id) {
+    input.value = '';
+    showEditor(id);
+  }
+});
+document.getElementById('newCaseName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('createCaseBtn').click();
+});
+
+document.getElementById('caseList').addEventListener('click', e => {
+  const openId = e.target.getAttribute('data-open');
+  const delId = e.target.getAttribute('data-del');
+  if (openId) showEditor(openId);
+  else if (delId) deleteCase(delId);
+});
+
+document.getElementById('backBtn').addEventListener('click', showList);
+
+document.getElementById('addStairBtn').addEventListener('click', () => addBlock('stair'));
+document.getElementById('addPlatformBtn').addEventListener('click', () => addBlock('platform'));
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  renderResults(c);
+});
+
+// Title rename
+const titleInput = document.getElementById('caseTitleEdit');
+titleInput.addEventListener('change', e => renameCurrentCase(e.target.value));
+titleInput.addEventListener('blur', e => {
+  const c = state.cases[state.currentCaseId];
+  if (c && !e.target.value.trim()) e.target.value = c.name;
+});
+
+// Delegated input handler for all measurement fields
+document.getElementById('blocksContainer').addEventListener('input', e => {
+  const t = e.target;
+  if (t.tagName !== 'INPUT') return;
+  const blockId = t.getAttribute('data-block');
+  const stepId = t.getAttribute('data-step');
+  const field = t.getAttribute('data-field');
+  if (!blockId || !field) return;
+  updateField(blockId, field, t.value, stepId);
+});
+
+// Delegated click handler for block-level actions
+document.getElementById('blocksContainer').addEventListener('click', e => {
+  const addStepId = e.target.getAttribute('data-add-step');
+  const delStepBtn = e.target.closest('[data-del-step]');
+  const removeBlockId = e.target.getAttribute('data-remove-block');
+
+  if (addStepId) {
+    addStep(addStepId);
+  } else if (delStepBtn) {
+    const blockId = delStepBtn.getAttribute('data-block');
+    const stepId = delStepBtn.getAttribute('data-step');
+    removeStep(blockId, stepId);
+  } else if (removeBlockId) {
+    removeBlock(removeBlockId);
+  }
+});
+
+// Results modal actions
+document.getElementById('closeResultsBtn').addEventListener('click', () => {
+  document.getElementById('resultsOverlay').classList.remove('active');
+});
+document.getElementById('resultsOverlay').addEventListener('click', e => {
+  if (e.target.id === 'resultsOverlay') {
+    document.getElementById('resultsOverlay').classList.remove('active');
+  }
+});
+document.getElementById('printBtn').addEventListener('click', () => { window.print(); });
+document.getElementById('copyBtn').addEventListener('click', async () => {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const text = resultsAsText(c);
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('已複製結果文字');
+  } catch {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); showToast('已複製結果文字'); }
+    catch { showToast('複製失敗'); }
+    document.body.removeChild(ta);
+  }
+});
+
+// Export (JSON) — single case backup
+document.getElementById('exportBtn').addEventListener('click', () => {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const blob = new Blob([JSON.stringify(c, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = c.name.replace(/[\\/:*?"<>|]/g, '_');
+  a.href = url;
+  a.download = `${safeName}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+/* ==========================================================================
+   Boot
+   ========================================================================== */
+loadState();
+showList();
+</script>
+</body>
+</html>
