@@ -360,6 +360,25 @@
   }
   .step-row .del-step:active { background: rgba(178,58,58,0.08); }
 
+  .step-row.first-step {
+    background: rgba(240, 220, 140, 0.28);
+    border-radius: 8px;
+    padding: 6px 4px;
+    margin-bottom: 10px;
+  }
+  .step-row.first-step .idx {
+    color: var(--stair);
+    font-weight: 700;
+  }
+  .no-input {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    font-size: 12px;
+    font-style: italic;
+  }
+
   .header-row {
     display: grid;
     grid-template-columns: 44px 1fr 1fr 36px;
@@ -978,24 +997,41 @@ function renderEditor() {
 }
 
 function renderStair(b, num, canDelete) {
-  const stepsHtml = b.steps.map((s, i) => `
+  const firstStep = b.steps[0];
+  const firstStepHtml = `
+    <div class="step-row first-step">
+      <span class="idx">第1階</span>
+      <div class="field">
+        <input type="number" inputmode="decimal" step="0.1" min="0"
+               data-block="${b.id}" data-step="${firstStep.id}" data-field="height"
+               value="${escapeAttr(firstStep.height)}" placeholder="階高" aria-label="第1階階高">
+        <span class="unit">cm</span>
+      </div>
+      <div class="no-input">（不量斜邊）</div>
+      <div></div>
+    </div>
+  `;
+
+  const restStepsHtml = b.steps.slice(1).map((s, i) => `
     <div class="step-row">
-      <span class="idx">第${i+1}階</span>
+      <span class="idx">第${i+2}階</span>
       <div class="field">
         <input type="number" inputmode="decimal" step="0.1" min="0"
                data-block="${b.id}" data-step="${s.id}" data-field="height"
-               value="${escapeAttr(s.height)}" placeholder="階高" aria-label="第${i+1}階階高">
+               value="${escapeAttr(s.height)}" placeholder="階高" aria-label="第${i+2}階階高">
         <span class="unit">cm</span>
       </div>
       <div class="field">
         <input type="number" inputmode="decimal" step="0.1" min="0"
                data-block="${b.id}" data-step="${s.id}" data-field="slope"
-               value="${escapeAttr(s.slope)}" placeholder="斜邊長" aria-label="第${i+1}階斜邊長">
+               value="${escapeAttr(s.slope)}" placeholder="斜邊長" aria-label="第${i+2}階斜邊長">
         <span class="unit">cm</span>
       </div>
       <button class="del-step" data-del-step data-block="${b.id}" data-step="${s.id}" aria-label="刪除此階">✕</button>
     </div>
   `).join('');
+
+  const stepsHtml = firstStepHtml + restStepsHtml;
 
   return `
     <div class="block stair" data-block-id="${b.id}">
@@ -1119,13 +1155,19 @@ function computeResults(c) {
   // 2. 梯寬
   const stairWidths = stairs.map(s => toNum(s.width)).filter(v => v !== null);
 
-  // 3. 梯深 (all slope lengths across all steps)
-  const allSlopes = stairs.flatMap(s => s.steps.map(st => toNum(st.slope))).filter(v => v !== null);
+  // 3. 梯深 = 換算階深 = √(斜邊長² − 階高²)。第一階無斜邊長，不計入。
+  const allDepths = stairs.flatMap(s => s.steps.slice(1).map(st => {
+    const h = toNum(st.height);
+    const sl = toNum(st.slope);
+    if (h === null || sl === null || sl <= 0) return null;
+    if (h > sl) return null;
+    return Math.sqrt(sl * sl - h * h);
+  })).filter(v => v !== null);
 
-  // 4. 相鄰兩斜邊加總 (within each stair segment)
+  // 4. 相鄰兩斜邊加總 — 從第 2 階起配對（第 1 階無斜邊）
   const adjSlopeSums = [];
   stairs.forEach(s => {
-    for (let i = 0; i < s.steps.length - 1; i++) {
+    for (let i = 1; i < s.steps.length - 1; i++) {
       const a = toNum(s.steps[i].slope);
       const b = toNum(s.steps[i+1].slope);
       if (a !== null && b !== null) adjSlopeSums.push(a + b);
@@ -1154,7 +1196,7 @@ function computeResults(c) {
       depth: calcRange(platformDepths)
     },
     stairWidth: calcRange(stairWidths),
-    slope: calcRange(allSlopes),
+    stairDepth: calcRange(allDepths),
     adjSlopeSum: calcRange(adjSlopeSums),
     heightExceptFirst: calcRange(heightsExceptFirst),
     firstStepHeight: calcRange(firstStepHeights),
@@ -1183,7 +1225,7 @@ function renderResults(c) {
   const rows = [];
   rows.push(rowHtml('梯間迴轉平台（寬 × 深）', fmtRange(r.platform.width), fmtRange(r.platform.depth)));
   rows.push(rowHtml('梯寬', fmtRange(r.stairWidth), null));
-  rows.push(rowHtml('梯深（斜邊長）', fmtRange(r.slope), null));
+  rows.push(rowHtml('梯深（換算階深）', fmtRange(r.stairDepth), null));
   rows.push(rowHtml('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum), null));
   rows.push(rowHtml('梯階高度（不含第一階）', fmtRange(r.heightExceptFirst), null));
   rows.push(rowHtml('各樓層第一階高', fmtRange(r.firstStepHeight), null));
@@ -1207,7 +1249,7 @@ function resultsAsText(c) {
     `【${c.name}】量測結果`,
     line('梯間迴轉平台', fmtRange(r.platform.width), fmtRange(r.platform.depth)),
     line('梯寬', fmtRange(r.stairWidth)),
-    line('梯深（斜邊長）', fmtRange(r.slope)),
+    line('梯深（換算階深）', fmtRange(r.stairDepth)),
     line('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum)),
     line('梯階高度（不含第一階）', fmtRange(r.heightExceptFirst)),
     line('各樓層第一階高', fmtRange(r.firstStepHeight)),
