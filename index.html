@@ -888,6 +888,73 @@
   .wc-dim-value.empty { color: var(--muted); font-size: 13px; font-weight: normal; }
   .wc-dim-unit { font-size: 12px; color: var(--muted); font-weight: normal; margin-left: 2px; }
 
+  /* ---------- Home Accessibility ---------- */
+  :root { --ha: #8b6f47; --ha-soft: #ede0cf; }
+  .ha-card    { background: var(--ha-soft); color: var(--ha); }
+  .ha-badge   { background: var(--ha-soft); color: var(--ha); }
+  .ha-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .ha-matrix { min-width: 100%; }
+  .ha-matrix th, .ha-matrix td { padding: 6px 4px; font-size: 12px; white-space: nowrap; }
+  .ha-matrix td:first-child { text-align: left; padding-left: 8px; font-weight: 500; font-size: 13px; white-space: normal; }
+  .ha-matrix th:first-child { text-align: left; padding-left: 8px; }
+  .ha-matrix input[type="radio"] { width: 16px; height: 16px; accent-color: var(--ha); cursor: pointer; margin: 0; }
+
+  .ha-rows { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; }
+  .ha-row {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    background: var(--surface-2);
+  }
+  .ha-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .ha-row-num { font-size: 12px; color: var(--ha); font-weight: 700; }
+  .ha-row-del {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--danger);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .ha-row-del:active { background: rgba(178,58,58,0.08); }
+  .ha-row-field { margin-bottom: 10px; }
+  .ha-row-field:last-child { margin-bottom: 0; }
+  .ha-row-grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .ha-row-grid3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .ha-empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 18px;
+    font-size: 13px;
+    font-style: italic;
+  }
+  .ha-add-btn { border-color: var(--ha); color: var(--ha); }
+  .ha-add-btn:active { background: var(--ha-soft); }
+  .ha-summary-section { background: #faf7f0; border-left: 4px solid var(--ha); }
+  .ha-summary-table { width: 100%; border-collapse: collapse; font-size: 14px; background: #fff; border-radius: 8px; overflow: hidden; }
+  .ha-summary-table th { background: var(--ha); color: #fff; padding: 9px 8px; font-size: 13px; font-weight: 500; }
+  .ha-summary-table td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: center; }
+  .ha-summary-table td:nth-child(2) { text-align: left; }
+  .ha-summary-table td:last-child { font-weight: 600; color: var(--ha); }
+  .ha-summary-table tr:last-child td { border-bottom: none; }
+  .ha-summary-warn { color: var(--danger); font-size: 11px; font-weight: normal; display: block; margin-top: 2px; }
+
   /* ---------- Print ---------- */
 
   /* ---------- Small tweaks ---------- */
@@ -895,6 +962,7 @@
     .step-row { grid-template-columns: 36px 1fr 1fr 30px; gap: 6px; }
     .header-row { grid-template-columns: 36px 1fr 1fr 30px; gap: 6px; }
     .step-row input, .field-group input, .width-field input { padding: 10px 28px 10px 10px; font-size: 14px; }
+    .ha-row-grid2, .ha-row-grid3 { grid-template-columns: 1fr; }
   }
 </style>
 </head>
@@ -914,13 +982,13 @@
     <div class="menu-grid">
       <button class="menu-card stair-card" id="menuStairBtn">
         <div class="menu-icon">🏠</div>
-        <div class="menu-label">爬梯機評估</div>
+        <div class="menu-label">爬梯機</div>
         <div class="menu-desc">樓梯量測記錄</div>
       </button>
-      <button class="menu-card wc-card" id="menuWheelchairBtn">
-        <div class="menu-icon">♿</div>
-        <div class="menu-label">輪椅評估</div>
-        <div class="menu-desc">輔具評估記錄</div>
+      <button class="menu-card ha-card" id="menuHomeAccessBtn">
+        <div class="menu-icon">🛠</div>
+        <div class="menu-label">居家無障礙</div>
+        <div class="menu-desc">居家環境評估記錄</div>
       </button>
       <button class="menu-card transfer-card" id="menuTransferBtn">
         <div class="menu-icon">🔄</div>
@@ -936,6 +1004,11 @@
         <div class="menu-icon">🛏</div>
         <div class="menu-label">氣墊床／電動床</div>
         <div class="menu-desc">床具評估記錄</div>
+      </button>
+      <button class="menu-card wc-card" id="menuWheelchairBtn">
+        <div class="menu-icon">♿</div>
+        <div class="menu-label">輪椅</div>
+        <div class="menu-desc">輔具評估記錄</div>
       </button>
       <button class="menu-card walker-card" id="menuWalkerBtn">
         <div class="menu-icon">🚶</div>
@@ -1016,6 +1089,11 @@
   <!-- Airbed View -->
   <section id="airbedView" style="display:none;">
     <div id="airbedFormContainer"></div>
+  </section>
+
+  <!-- Home Accessibility View -->
+  <section id="homeAccessibilityView" style="display:none;">
+    <div id="homeAccessibilityFormContainer"></div>
   </section>
 
 </div>
@@ -1204,6 +1282,19 @@ function defaultAirbed() {
   };
 }
 
+function defaultHomeAccessibility() {
+  return {
+    gross_motor: {},
+    fine_motor: {},
+    locations: [],
+    locations_other_desc: '',
+    assistive_devices: [],
+    renovations: [],
+    subsidy: [],
+    exemptItems: ''
+  };
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -1221,8 +1312,9 @@ function loadState() {
     if (!c.airbed)    c.airbed    = defaultAirbed();
     if (!c.walker)    c.walker    = defaultWalker();
     if (!c.shower)    c.shower    = defaultShower();
+    if (!c.homeAccessibility) c.homeAccessibility = defaultHomeAccessibility();
     // Migrate subsidy from string to array
-    ['wheelchair','shower','walker','transfer','cushion','airbed'].forEach(key => {
+    ['wheelchair','shower','walker','transfer','cushion','airbed','homeAccessibility'].forEach(key => {
       if (c[key] && typeof c[key].subsidy === 'string') {
         c[key].subsidy = c[key].subsidy ? [c[key].subsidy] : [];
       }
@@ -1270,7 +1362,8 @@ function createCase(name, assessmentDate) {
     cushion: defaultCushion(),
     airbed: {},
     walker: defaultWalker(),
-    shower: defaultShower()
+    shower: defaultShower(),
+    homeAccessibility: defaultHomeAccessibility()
   };
   saveState();
   return id;
@@ -1465,6 +1558,15 @@ function renderList() {
     const ab = c.airbed;
     const hasAirbedData = ab && (ab.mattressType || ab.consciousness || ab.staticBalance ||
       (Array.isArray(ab.assessmentResult) && ab.assessmentResult.length > 0));
+    const ha = c.homeAccessibility;
+    const hasHaData = ha && (
+      (ha.gross_motor && Object.keys(ha.gross_motor).length > 0) ||
+      (ha.fine_motor && Object.keys(ha.fine_motor).length > 0) ||
+      (Array.isArray(ha.locations) && ha.locations.length > 0) ||
+      (Array.isArray(ha.assistive_devices) && ha.assistive_devices.length > 0) ||
+      (Array.isArray(ha.renovations) && ha.renovations.length > 0) ||
+      (Array.isArray(ha.subsidy) && ha.subsidy.length > 0)
+    );
     const badges = [
       hasStairData    ? '<span class="assess-badge stair-badge">🏠 爬梯機</span>' : '',
       hasWcData       ? '<span class="assess-badge wc-badge">♿ 輪椅</span>' : '',
@@ -1472,7 +1574,8 @@ function renderList() {
       hasAirbedData   ? '<span class="assess-badge airbed-badge">🛏 床組</span>' : '',
       hasShowerData   ? '<span class="assess-badge shower-badge">🚿 沐浴便盆</span>' : '',
       hasWalkerData   ? '<span class="assess-badge walker-badge">🚶 助步車</span>' : '',
-      hasTransferData ? '<span class="assess-badge transfer-badge">🔄 移位</span>' : ''
+      hasTransferData ? '<span class="assess-badge transfer-badge">🔄 移位</span>' : '',
+      hasHaData       ? '<span class="assess-badge ha-badge">🛠 居家無障礙</span>' : ''
     ].filter(Boolean).join('');
     return `
       <div class="case-item" data-open-case="${c.id}">
@@ -3771,7 +3874,7 @@ function updateWheelchairDimensions() {
    Navigation
    ========================================================================== */
 function hideAllViews() {
-  ['mainMenuView', 'listView', 'editorView', 'wheelchairView', 'cushionView', 'showerView', 'walkerView', 'transferView', 'airbedView'].forEach(id => {
+  ['mainMenuView', 'listView', 'editorView', 'wheelchairView', 'cushionView', 'showerView', 'walkerView', 'transferView', 'airbedView', 'homeAccessibilityView'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
 }
@@ -3927,6 +4030,481 @@ function showAirbed(caseId) {
 }
 
 /* ==========================================================================
+   Home Accessibility
+   ========================================================================== */
+const HA_LOCATIONS = [
+  ['main_entrance','主要出入口'],
+  ['horizontal_path','水平通路'],
+  ['vertical_path','垂直通路'],
+  ['bathroom','浴廁空間'],
+  ['bedroom','臥室空間'],
+  ['kitchen','廚房空間'],
+  ['other','其他空間']
+];
+const HA_GROSS_LEVELS = [
+  ['independent','獨立完成'],
+  ['partial_assist','部份協助'],
+  ['major_assist','大量協助'],
+  ['unable','無法執行'],
+  ['not_required','不須評估']
+];
+const HA_GROSS_ACTIONS = [
+  ['sit','坐'], ['sit_to_stand','坐站'], ['stand','站'],
+  ['walk_flat','平地行走'], ['walk_ramp','斜坡行走'],
+  ['walk_stairs','樓梯行走'], ['step_over','跨越門檻']
+];
+const HA_FINE_LEVELS = [
+  ['good','良好'], ['fair','尚可'], ['poor','不好'],
+  ['very_poor','極差'], ['unable','無法執行']
+];
+const HA_FINE_COLS = [
+  ['finger_right','個別手指（右）'], ['finger_left','個別手指（左）'],
+  ['grip_right','抓握（右）'], ['grip_left','抓握（左）'],
+  ['function_right','功能操作（右）'], ['function_left','功能操作（左）']
+];
+const HA_AID_ITEMS = [
+  ['threshold_slope','門檻斜角'],
+  ['portable_ramp','非固定式斜坡板'],
+  ['anti_slip','防滑措施'],
+  ['reflective_strip','反光貼條或消光處理'],
+  ['toilet_handrail','馬桶扶手'],
+  ['bed_handrail','床邊扶手']
+];
+const HA_RENO_ITEMS = [
+  ['door','門'], ['fixed_handrail','固定式扶手'], ['movable_handrail','可動式扶手'],
+  ['drainage_trench','截水槽'], ['level_diff','改善高低差'], ['faucet','水龍頭'],
+  ['anti_slip_tile','防滑地磚'], ['bathtub','改善浴缸'], ['sink','改善洗臉台（槽）'],
+  ['toilet','改善馬桶'], ['toilet_backrest','馬桶背靠'], ['counter','改善流理台'],
+  ['range_hood','改善抽油煙機'], ['partition','隔間'], ['wall_shower','壁掛式淋浴台']
+];
+const HA_RAMP_GRADES = [
+  ['under_90cm','A. 未達 90 公分'],
+  ['90cm_up','B. 90 公分以上'],
+  ['120cm_up','C. 120 公分以上'],
+  ['150cm_up','D. 150 公分以上']
+];
+const HA_DOOR_SPECS = [
+  ['simple','A. 簡易型（門片變更／軌道）'],
+  ['advanced','B. 進階型（門框施工／加寬／新增）']
+];
+const HA_HANDRAIL_TYPES = [
+  ['L_type','A. L 型'],
+  ['vertical','B. 垂直一字型'],
+  ['horizontal','C. 水平一字型']
+];
+const HA_LEVELDIFF_SPECS = [
+  ['under_10cm','10 公分以下'],
+  ['under_20cm','20 公分以下'],
+  ['under_30cm','30 公分以下'],
+  ['over_30cm','超過 30 公分']
+];
+
+function haLabelOf(arr, value) {
+  const found = arr.find(x => x[0] === value);
+  return found ? found[1] : value;
+}
+
+function renderHomeAccessibilityForm(caseId) {
+  const c = state.cases[caseId];
+  if (!c) return;
+  const ha = c.homeAccessibility;
+  const checkedLocations = Array.isArray(ha.locations) ? ha.locations : [];
+  const showOtherDesc = checkedLocations.includes('other');
+
+  // 1. Gross motor matrix
+  const grossHeader = HA_GROSS_LEVELS.map(([_,l]) => `<th>${escapeHtml(l)}</th>`).join('');
+  const grossRows = HA_GROSS_ACTIONS.map(([aid, alabel]) => {
+    const cells = HA_GROSS_LEVELS.map(([lv, llabel]) => {
+      const checked = (ha.gross_motor || {})[aid] === lv ? 'checked' : '';
+      return `<td><input type="radio" name="ha_gross_${aid}" data-ha-gross="${aid}" value="${lv}" ${checked} aria-label="${escapeHtml(alabel)} ${escapeHtml(llabel)}"></td>`;
+    }).join('');
+    return `<tr><td>${escapeHtml(alabel)}</td>${cells}</tr>`;
+  }).join('');
+
+  // 2. Fine motor matrix
+  const fineHeader = HA_FINE_COLS.map(([_,l]) => `<th>${escapeHtml(l)}</th>`).join('');
+  const fineRows = HA_FINE_LEVELS.map(([lv, llabel]) => {
+    const cells = HA_FINE_COLS.map(([col]) => {
+      const checked = (ha.fine_motor || {})[col] === lv ? 'checked' : '';
+      return `<td><input type="radio" name="ha_fine_${col}" data-ha-fine="${col}" value="${lv}" ${checked}></td>`;
+    }).join('');
+    return `<tr><td>${escapeHtml(llabel)}</td>${cells}</tr>`;
+  }).join('');
+
+  // 3. Locations
+  const locsHtml = HA_LOCATIONS.map(([v, l]) => {
+    const ck = checkedLocations.includes(v) ? 'checked' : '';
+    return `<label class="wc-inline-option"><input type="checkbox" data-ha-loc value="${v}" ${ck}><span class="wc-inline-option-text">${escapeHtml(l)}</span></label>`;
+  }).join('');
+
+  // 4-5. Rows
+  const aidRowsHtml = (ha.assistive_devices || []).map((row, idx) =>
+    renderHaAidRow(row, idx, haLocOptions(checkedLocations, row.location))).join('');
+  const renoRowsHtml = (ha.renovations || []).map((row, idx) =>
+    renderHaRenoRow(row, idx, haLocOptions(checkedLocations, row.location))).join('');
+
+  // 6. Summary
+  const summaryHtml = renderHaSummary(ha);
+
+  // 7. Subsidy
+  const subsidyChecks = [['身障','身障'],['長照','長照']].map(([v,l]) => {
+    const ck = (Array.isArray(ha.subsidy) ? ha.subsidy : []).includes(v) ? 'checked' : '';
+    return `<label class="wc-inline-option"><input type="checkbox" data-ha-subsidy value="${v}" ${ck}><span class="wc-inline-option-text">${escapeHtml(l)}</span></label>`;
+  }).join('');
+
+  document.getElementById('homeAccessibilityFormContainer').innerHTML = `
+  <div class="wc-section">
+    <h3>1. 粗大動作能力</h3>
+    <div class="ha-table-wrap">
+      <table class="assess-table ha-matrix">
+        <thead><tr><th>動作</th>${grossHeader}</tr></thead>
+        <tbody>${grossRows}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="wc-section">
+    <h3>2. 精細動作能力</h3>
+    <div class="ha-table-wrap">
+      <table class="assess-table ha-matrix">
+        <thead><tr><th>等級</th>${fineHeader}</tr></thead>
+        <tbody>${fineRows}</tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="wc-section">
+    <h3>3. 改善地點（可複選）</h3>
+    <div class="wc-inline-options">${locsHtml}</div>
+    <div class="wc-sub-fields ${showOtherDesc?'visible':''}" id="ha-sub-loc-other">
+      <div class="wc-field">
+        <label class="wc-label">其他空間說明</label>
+        <input type="text" class="wc-input" data-ha-field="locations_other_desc" value="${escapeAttr(ha.locations_other_desc)}" placeholder="填寫文字">
+      </div>
+    </div>
+  </div>
+
+  <div class="wc-section">
+    <h3>4. 輔具項目</h3>
+    <div class="ha-rows" id="haAidRows">${aidRowsHtml || '<div class="ha-empty">尚未新增輔具項目</div>'}</div>
+    <button class="add-step-btn ha-add-btn" data-ha-add-row="assistive_devices">＋ 新增輔具項目</button>
+  </div>
+
+  <div class="wc-section">
+    <h3>5. 修繕項目</h3>
+    <div class="ha-rows" id="haRenoRows">${renoRowsHtml || '<div class="ha-empty">尚未新增修繕項目</div>'}</div>
+    <button class="add-step-btn ha-add-btn" data-ha-add-row="renovations">＋ 新增修繕項目</button>
+  </div>
+
+  <div class="wc-section">
+    <h3>6. 補助申請</h3>
+    <div class="wc-field">
+      <label class="wc-label">申請補助管道（可複選）</label>
+      <div class="wc-inline-options">${subsidyChecks}</div>
+    </div>
+    <div class="wc-field">
+      <label class="wc-label">免評估項目</label>
+      <input type="text" class="wc-input" data-ha-field="exemptItems" value="${escapeAttr(ha.exemptItems)}" placeholder="填寫文字">
+    </div>
+  </div>
+
+  <div class="wc-section ha-summary-section" id="haSummarySection">
+    <h3>7. 總結（自動彙整）</h3>
+    ${summaryHtml}
+  </div>
+  `;
+}
+
+function haLocOptions(checkedLocations, currentVal) {
+  const opts = ['<option value="">— 選擇地點 —</option>'];
+  let hasCurrent = false;
+  HA_LOCATIONS.forEach(([v, l]) => {
+    if (!checkedLocations.includes(v)) return;
+    if (v === currentVal) hasCurrent = true;
+    opts.push(`<option value="${v}" ${v===currentVal?'selected':''}>${escapeHtml(l)}</option>`);
+  });
+  if (currentVal && !hasCurrent) {
+    const fallback = haLabelOf(HA_LOCATIONS, currentVal);
+    opts.push(`<option value="${currentVal}" selected>${escapeHtml(fallback)}（地點未勾選）</option>`);
+  }
+  if (checkedLocations.length === 0) {
+    opts[0] = '<option value="">（請先在第 3 節勾選地點）</option>';
+  }
+  return opts.join('');
+}
+
+function haNumField(list, idx, field, label, value) {
+  return `
+    <div class="ha-row-field">
+      <label class="wc-label">${escapeHtml(label)}</label>
+      <div class="wc-num-wrap" style="display:block;width:100%;">
+        <input type="number" inputmode="decimal" step="0.1" min="0" class="wc-num-input" style="width:100%;"
+               data-ha-row-list="${list}" data-ha-row-index="${idx}" data-ha-row-field="${field}"
+               value="${escapeAttr(value)}" placeholder="—">
+        <span class="unit">cm</span>
+      </div>
+    </div>`;
+}
+
+function renderHaAidRow(row, idx, locOptionsHtml) {
+  const itemOpts = ['<option value="">— 選擇品項 —</option>']
+    .concat(HA_AID_ITEMS.map(([v,l]) =>
+      `<option value="${v}" ${v===row.item?'selected':''}>${escapeHtml(l)}</option>`)).join('');
+
+  let specHtml = '';
+  if (row.item === 'portable_ramp') {
+    const opts = ['<option value="">— 選擇長度級距 —</option>']
+      .concat(HA_RAMP_GRADES.map(([v,l]) =>
+        `<option value="${v}" ${v===row.spec?'selected':''}>${escapeHtml(l)}</option>`)).join('');
+    specHtml = `
+      <div class="ha-row-field">
+        <label class="wc-label">規格（長度級距）</label>
+        <select class="wc-input" data-ha-row-list="assistive_devices" data-ha-row-index="${idx}" data-ha-row-field="spec">${opts}</select>
+      </div>`;
+    if (row.spec) {
+      specHtml += `
+      <div class="ha-row-grid3">
+        ${haNumField('assistive_devices', idx, 'ramp_length', '長度', row.ramp_length)}
+        ${haNumField('assistive_devices', idx, 'ramp_width', '寬度', row.ramp_width)}
+        ${haNumField('assistive_devices', idx, 'ramp_door_clear_width', '門前淨寬', row.ramp_door_clear_width)}
+      </div>`;
+    }
+  }
+
+  return `
+    <div class="ha-row" data-ha-row-list="assistive_devices" data-ha-row-index="${idx}">
+      <div class="ha-row-header">
+        <span class="ha-row-num">輔具 #${idx+1}</span>
+        <button type="button" class="ha-row-del" data-ha-del-row="${idx}" data-ha-list="assistive_devices">🗑 刪除</button>
+      </div>
+      <div class="ha-row-grid2">
+        <div class="ha-row-field">
+          <label class="wc-label">地點</label>
+          <select class="wc-input" data-ha-row-list="assistive_devices" data-ha-row-index="${idx}" data-ha-row-field="location">${locOptionsHtml}</select>
+        </div>
+        <div class="ha-row-field">
+          <label class="wc-label">品項</label>
+          <select class="wc-input" data-ha-row-list="assistive_devices" data-ha-row-index="${idx}" data-ha-row-field="item">${itemOpts}</select>
+        </div>
+      </div>
+      ${specHtml}
+      <div class="ha-row-field">
+        <label class="wc-label">備註</label>
+        <input type="text" class="wc-input" data-ha-row-list="assistive_devices" data-ha-row-index="${idx}" data-ha-row-field="note" value="${escapeAttr(row.note)}" placeholder="選填">
+      </div>
+    </div>`;
+}
+
+function renderHaRenoRow(row, idx, locOptionsHtml) {
+  const itemOpts = ['<option value="">— 選擇品項 —</option>']
+    .concat(HA_RENO_ITEMS.map(([v,l]) =>
+      `<option value="${v}" ${v===row.item?'selected':''}>${escapeHtml(l)}</option>`)).join('');
+
+  let specHtml = '';
+  if (row.item === 'door') {
+    const opts = ['<option value="">— 選擇 —</option>']
+      .concat(HA_DOOR_SPECS.map(([v,l]) =>
+        `<option value="${v}" ${v===row.spec?'selected':''}>${escapeHtml(l)}</option>`)).join('');
+    specHtml = `<div class="ha-row-field">
+        <label class="wc-label">規格</label>
+        <select class="wc-input" data-ha-row-list="renovations" data-ha-row-index="${idx}" data-ha-row-field="spec">${opts}</select>
+      </div>`;
+  } else if (row.item === 'fixed_handrail') {
+    const opts = ['<option value="">— 選擇扶手類型 —</option>']
+      .concat(HA_HANDRAIL_TYPES.map(([v,l]) =>
+        `<option value="${v}" ${v===row.spec?'selected':''}>${escapeHtml(l)}</option>`)).join('');
+    specHtml = `<div class="ha-row-field">
+        <label class="wc-label">規格（扶手類型）</label>
+        <select class="wc-input" data-ha-row-list="renovations" data-ha-row-index="${idx}" data-ha-row-field="spec">${opts}</select>
+      </div>`;
+    if (row.spec === 'L_type') {
+      specHtml += `
+      <div class="ha-row-grid3">
+        ${haNumField('renovations', idx, 'handrail_height', '離地高度', row.handrail_height)}
+        ${haNumField('renovations', idx, 'handrail_length_vertical', '垂直段長度', row.handrail_length_vertical)}
+        ${haNumField('renovations', idx, 'handrail_length_horizontal', '水平段長度', row.handrail_length_horizontal)}
+      </div>`;
+    } else if (row.spec === 'vertical' || row.spec === 'horizontal') {
+      specHtml += `
+      <div class="ha-row-grid2">
+        ${haNumField('renovations', idx, 'handrail_height', '離地高度', row.handrail_height)}
+        ${haNumField('renovations', idx, 'handrail_length', '長度', row.handrail_length)}
+      </div>`;
+    }
+  } else if (row.item === 'level_diff') {
+    const opts = ['<option value="">— 選擇 —</option>']
+      .concat(HA_LEVELDIFF_SPECS.map(([v,l]) =>
+        `<option value="${v}" ${v===row.spec?'selected':''}>${escapeHtml(l)}</option>`)).join('');
+    specHtml = `<div class="ha-row-field">
+        <label class="wc-label">規格</label>
+        <select class="wc-input" data-ha-row-list="renovations" data-ha-row-index="${idx}" data-ha-row-field="spec">${opts}</select>
+      </div>`;
+  }
+
+  return `
+    <div class="ha-row" data-ha-row-list="renovations" data-ha-row-index="${idx}">
+      <div class="ha-row-header">
+        <span class="ha-row-num">修繕 #${idx+1}</span>
+        <button type="button" class="ha-row-del" data-ha-del-row="${idx}" data-ha-list="renovations">🗑 刪除</button>
+      </div>
+      <div class="ha-row-grid2">
+        <div class="ha-row-field">
+          <label class="wc-label">地點</label>
+          <select class="wc-input" data-ha-row-list="renovations" data-ha-row-index="${idx}" data-ha-row-field="location">${locOptionsHtml}</select>
+        </div>
+        <div class="ha-row-field">
+          <label class="wc-label">品項</label>
+          <select class="wc-input" data-ha-row-list="renovations" data-ha-row-index="${idx}" data-ha-row-field="item">${itemOpts}</select>
+        </div>
+      </div>
+      ${specHtml}
+      <div class="ha-row-field">
+        <label class="wc-label">備註</label>
+        <input type="text" class="wc-input" data-ha-row-list="renovations" data-ha-row-index="${idx}" data-ha-row-field="note" value="${escapeAttr(row.note)}" placeholder="選填">
+      </div>
+    </div>`;
+}
+
+function renderHaSummary(ha) {
+  const handrailRows = (ha.renovations || []).filter(r => r.item === 'fixed_handrail');
+  let handrailTotal = 0;
+  let handrailHasEmpty = false;
+  handrailRows.forEach(r => {
+    if (r.spec === 'L_type') {
+      const v = toNum(r.handrail_length_vertical);
+      const h = toNum(r.handrail_length_horizontal);
+      if (v === null || h === null) handrailHasEmpty = true;
+      handrailTotal += (v || 0) + (h || 0);
+    } else if (r.spec === 'vertical' || r.spec === 'horizontal') {
+      const l = toNum(r.handrail_length);
+      if (l === null) handrailHasEmpty = true;
+      handrailTotal += (l || 0);
+    } else {
+      handrailHasEmpty = true;
+    }
+  });
+
+  const all = [...(ha.assistive_devices || []), ...(ha.renovations || [])];
+  const counts = {};
+  all.forEach(r => {
+    if (r.item && r.item !== 'fixed_handrail') {
+      counts[r.item] = (counts[r.item] || 0) + 1;
+    }
+  });
+
+  const aidSet = new Set(HA_AID_ITEMS.map(([v]) => v));
+  const rows = [];
+  if (handrailRows.length > 0) {
+    const note = handrailHasEmpty ? '<span class="ha-summary-warn">（部分項目尚未填寫長度）</span>' : '';
+    rows.push(`<tr><td>修繕</td><td>固定式扶手</td><td>共 ${handrailTotal} 公分${note}</td></tr>`);
+  }
+  Object.keys(counts).forEach(itemKey => {
+    const isAid = aidSet.has(itemKey);
+    const cat = isAid ? '輔具' : '修繕';
+    const label = haLabelOf(isAid ? HA_AID_ITEMS : HA_RENO_ITEMS, itemKey);
+    rows.push(`<tr><td>${cat}</td><td>${escapeHtml(label)}</td><td>共 ${counts[itemKey]} 處</td></tr>`);
+  });
+
+  if (rows.length === 0) {
+    return `<div class="ha-empty">尚無資料，請先新增輔具或修繕項目</div>`;
+  }
+  return `
+    <table class="ha-summary-table">
+      <thead><tr><th>類別</th><th>項目</th><th>數量</th></tr></thead>
+      <tbody>${rows.join('')}</tbody>
+    </table>`;
+}
+
+function updateHaSummary() {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const section = document.getElementById('haSummarySection');
+  if (!section) return;
+  section.innerHTML = `<h3>7. 總結（自動彙整）</h3>${renderHaSummary(c.homeAccessibility)}`;
+}
+
+function saveHaField(field, value) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  c.homeAccessibility[field] = value;
+  touchCase(c.id);
+  saveState();
+}
+
+function saveHaGross(action, level) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  if (!c.homeAccessibility.gross_motor) c.homeAccessibility.gross_motor = {};
+  c.homeAccessibility.gross_motor[action] = level;
+  touchCase(c.id);
+  saveState();
+}
+
+function saveHaFine(col, level) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  if (!c.homeAccessibility.fine_motor) c.homeAccessibility.fine_motor = {};
+  c.homeAccessibility.fine_motor[col] = level;
+  touchCase(c.id);
+  saveState();
+}
+
+function saveHaRowField(list, idx, field, value) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const arr = c.homeAccessibility[list];
+  if (!arr || !arr[idx]) return;
+  arr[idx][field] = value;
+  if (field === 'item') {
+    arr[idx].spec = null;
+    ['ramp_length','ramp_width','ramp_door_clear_width',
+     'handrail_height','handrail_length','handrail_length_vertical','handrail_length_horizontal']
+      .forEach(k => delete arr[idx][k]);
+  }
+  if (field === 'spec' && arr[idx].item === 'fixed_handrail') {
+    ['handrail_length','handrail_length_vertical','handrail_length_horizontal']
+      .forEach(k => delete arr[idx][k]);
+  }
+  touchCase(c.id);
+  saveState();
+}
+
+function addHaRow(list) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  if (!c.homeAccessibility[list]) c.homeAccessibility[list] = [];
+  c.homeAccessibility[list].push({ location: '', item: '', spec: null, note: '' });
+  touchCase(c.id);
+  saveState();
+  renderHomeAccessibilityForm(c.id);
+}
+
+function removeHaRow(list, idx) {
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const arr = c.homeAccessibility[list];
+  if (!arr || idx < 0 || idx >= arr.length) return;
+  if (!confirm('確定刪除此列？')) return;
+  arr.splice(idx, 1);
+  touchCase(c.id);
+  saveState();
+  renderHomeAccessibilityForm(c.id);
+}
+
+function showHomeAccessibility(caseId) {
+  if (!state.cases[caseId]) return;
+  state.currentCaseId = caseId;
+  hideAllViews();
+  document.getElementById('homeAccessibilityView').style.display = '';
+  document.getElementById('backBtn').style.display = '';
+  document.getElementById('headerTitle').textContent = '居家無障礙評估';
+  document.getElementById('subtitle').textContent = state.cases[caseId].name;
+  backFn = () => showMainMenu(state.currentCaseId);
+  renderHomeAccessibilityForm(caseId);
+  window.scrollTo(0, 0);
+}
+
+/* ==========================================================================
    Toast & indicators
    ========================================================================== */
 let toastTimer;
@@ -3983,6 +4561,7 @@ document.getElementById('menuCushionBtn').addEventListener('click', () => showCu
 document.getElementById('menuAirbedBtn').addEventListener('click', () => showAirbed(state.currentCaseId));
 document.getElementById('menuWalkerBtn').addEventListener('click', () => showWalker(state.currentCaseId));
 document.getElementById('menuShowerBtn').addEventListener('click', () => showShower(state.currentCaseId));
+document.getElementById('menuHomeAccessBtn').addEventListener('click', () => showHomeAccessibility(state.currentCaseId));
 
 // mainMenuView basic info — event delegation for wc fields + tubes checkbox
 document.getElementById('mainMenuView').addEventListener('change', e => {
@@ -4199,6 +4778,90 @@ document.getElementById('airbedView').addEventListener('input', e => {
   const t = e.target;
   const field = t.getAttribute('data-ab-field');
   if (field && t.type !== 'radio' && t.type !== 'checkbox') saveAirbedField(field, t.value);
+});
+
+// Home Accessibility view event delegation
+document.getElementById('homeAccessibilityView').addEventListener('change', e => {
+  const t = e.target;
+  const grossField = t.getAttribute('data-ha-gross');
+  const fineField = t.getAttribute('data-ha-fine');
+  const rowField = t.getAttribute('data-ha-row-field');
+
+  if (grossField && t.type === 'radio' && t.checked) {
+    saveHaGross(grossField, t.value);
+    return;
+  }
+  if (fineField && t.type === 'radio' && t.checked) {
+    saveHaFine(fineField, t.value);
+    return;
+  }
+  if (t.hasAttribute('data-ha-loc')) {
+    const c = state.cases[state.currentCaseId];
+    if (!c) return;
+    const arr = Array.isArray(c.homeAccessibility.locations) ? c.homeAccessibility.locations : [];
+    if (t.checked) { if (!arr.includes(t.value)) arr.push(t.value); }
+    else { const i = arr.indexOf(t.value); if (i > -1) arr.splice(i, 1); }
+    saveHaField('locations', arr);
+    renderHomeAccessibilityForm(c.id);
+    return;
+  }
+  if (t.hasAttribute('data-ha-subsidy')) {
+    const c = state.cases[state.currentCaseId];
+    if (!c) return;
+    const arr = Array.isArray(c.homeAccessibility.subsidy) ? c.homeAccessibility.subsidy : [];
+    if (t.checked) { if (!arr.includes(t.value)) arr.push(t.value); }
+    else { const i = arr.indexOf(t.value); if (i > -1) arr.splice(i, 1); }
+    saveHaField('subsidy', arr);
+    return;
+  }
+  if (rowField && t.tagName === 'SELECT') {
+    const list = t.getAttribute('data-ha-row-list');
+    const idx = +t.getAttribute('data-ha-row-index');
+    saveHaRowField(list, idx, rowField, t.value);
+    const c = state.cases[state.currentCaseId];
+    if (!c) return;
+    if (rowField === 'item') {
+      renderHomeAccessibilityForm(c.id);
+    } else if (rowField === 'spec') {
+      const row = c.homeAccessibility[list][idx];
+      if (row && (row.item === 'fixed_handrail' || row.item === 'portable_ramp')) {
+        renderHomeAccessibilityForm(c.id);
+      } else {
+        updateHaSummary();
+      }
+    } else {
+      updateHaSummary();
+    }
+    return;
+  }
+});
+
+document.getElementById('homeAccessibilityView').addEventListener('input', e => {
+  const t = e.target;
+  if (t.tagName !== 'INPUT' && t.tagName !== 'TEXTAREA') return;
+  if (t.type === 'radio' || t.type === 'checkbox') return;
+  const field = t.getAttribute('data-ha-field');
+  const rowField = t.getAttribute('data-ha-row-field');
+  if (field) {
+    saveHaField(field, t.value);
+    return;
+  }
+  if (rowField) {
+    const list = t.getAttribute('data-ha-row-list');
+    const idx = +t.getAttribute('data-ha-row-index');
+    saveHaRowField(list, idx, rowField, t.value);
+    updateHaSummary();
+  }
+});
+
+document.getElementById('homeAccessibilityView').addEventListener('click', e => {
+  const addBtn = e.target.closest('[data-ha-add-row]');
+  const delBtn = e.target.closest('[data-ha-del-row]');
+  if (addBtn) {
+    addHaRow(addBtn.getAttribute('data-ha-add-row'));
+  } else if (delBtn) {
+    removeHaRow(delBtn.getAttribute('data-ha-list'), +delBtn.getAttribute('data-ha-del-row'));
+  }
 });
 
 document.getElementById('addStairBtn').addEventListener('click', () => addBlock('stair'));
