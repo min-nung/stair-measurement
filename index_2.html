@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#3b82f6">
+<title>輔具評估系統</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+
+  :root {
+    --bg: #f0f2f5;
+    --surface: #ffffff;
+    --surface-2: #f8fafc;
+    --ink: #0f172a;
+    --ink-soft: #475569;
+    --muted: #94a3b8;
+    --line: #e2e8f0;
+    --primary: #3b82f6;
+    --primary-dark: #2563eb;
+    --primary-soft: #eff6ff;
+    --danger: #ef4444;
+    --danger-soft: #fef2f2;
+    --ok: #10b981;
+    --radius-sm: 10px;
+    --radius: 16px;
+    --radius-lg: 24px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 4px 16px rgba(0,0,0,0.08);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
+
+    /* Module accent colours */
+    --stair-c: #f97316;
+    --ha-c: #8b5cf6;
+    --transfer-c: #0ea5e9;
+    --cushion-c: #ec4899;
+    --airbed-c: #14b8a6;
+    --wc-c: #3b82f6;
+    --walker-c: #84cc16;
+    --shower-c: #f59e0b;
+  }
+
+  html, body {
+    margin: 0; padding: 0; min-height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC",
+      "Microsoft JhengHei", "Noto Sans TC", Roboto, sans-serif;
+    font-size: 16px; line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  button { font: inherit; color: inherit; cursor: pointer; border: none; background: none; }
+  input, select, textarea { font: inherit; color: inherit; }
+
+  /* ── App shell ── */
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100svh;
+    position: relative;
+  }
+
+  /* ── Views ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ======================================================
+     LIST VIEW
+     ====================================================== */
+  #listView {
+    padding-bottom: 100px;
+  }
+
+  /* Top bar */
+  .list-topbar {
+    background: var(--surface);
+    padding: 20px 20px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 1px solid var(--line);
+  }
+  .list-topbar h1 {
+    margin: 0 0 2px;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.3px;
+  }
+  .list-topbar .sub {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  /* Case list */
+  .list-body {
+    padding: 16px 16px 0;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    margin: 0 4px 10px;
+  }
+
+  .case-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.12s;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .case-card:active { transform: scale(0.985); box-shadow: none; }
+
+  .case-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .case-card-info { flex: 1; min-width: 0; }
+  .case-card .name {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .case-card .date {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+  .case-del-btn {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--danger-soft);
+    color: var(--danger);
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.1s;
+  }
+  .case-del-btn:active { background: #fecaca; }
+
+  .badge-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 10px;
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .badge-stair    { background: #fff7ed; color: var(--stair-c); }
+  .badge-wc       { background: #eff6ff; color: var(--wc-c); }
+  .badge-cushion  { background: #fdf2f8; color: var(--cushion-c); }
+  .badge-airbed   { background: #f0fdfa; color: var(--airbed-c); }
+  .badge-shower   { background: #fffbeb; color: var(--shower-c); }
+  .badge-walker   { background: #f7fee7; color: var(--walker-c); }
+  .badge-transfer { background: #f0f9ff; color: var(--transfer-c); }
+  .badge-ha       { background: #f5f3ff; color: var(--ha-c); }
+
+  /* Empty state */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 64px 32px;
+    text-align: center;
+  }
+  .empty-icon {
+    width: 80px; height: 80px;
+    background: var(--primary-soft);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+    margin-bottom: 20px;
+  }
+  .empty-state h3 {
+    margin: 0 0 6px;
+    font-size: 17px;
+    color: var(--ink);
+  }
+  .empty-state p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* FAB */
+  .fab {
+    position: fixed;
+    bottom: 28px;
+    right: calc(50% - 240px + 20px);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 28px;
+    font-weight: 300;
+    box-shadow: 0 6px 20px rgba(59,130,246,0.45);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.15s, box-shadow 0.15s;
+    z-index: 20;
+  }
+  .fab:active { transform: scale(0.92); box-shadow: 0 3px 10px rgba(59,130,246,0.3); }
+  @media (max-width: 480px) {
+    .fab { right: 20px; }
+  }
+
+  /* ── Bottom Sheet (new case) ── */
+  .sheet-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .sheet-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .sheet {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%) translateY(100%);
+    width: min(480px, 100vw);
+    background: var(--surface);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 8px 20px 40px;
+    z-index: 50;
+    transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  }
+  .sheet.open { transform: translateX(-50%) translateY(0); }
+
+  .sheet-handle {
+    width: 36px; height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    margin: 10px auto 20px;
+  }
+  .sheet h2 {
+    margin: 0 0 20px;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .sheet .field-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .sheet input[type="text"],
+  .sheet input[type="date"] {
+    width: 100%;
+    padding: 13px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .sheet input:focus {
+    border-color: var(--primary);
+    background: #fff;
+  }
+  .sheet .field-gap { margin-bottom: 16px; }
+  .sheet-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+  }
+  .btn-ghost {
+    flex: 1;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-2);
+    color: var(--ink-soft);
+    font-size: 15px;
+    font-weight: 500;
+  }
+  .btn-primary {
+    flex: 2;
+    padding: 13px;
+    border-radius: var(--radius-sm);
+    background: var(--primary);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+  }
+  .btn-primary:active { background: var(--primary-dark); }
+
+  /* ======================================================
+     MENU VIEW
+     ====================================================== */
+  #menuView {
+    padding-bottom: 40px;
+  }
+
+  .menu-topbar {
+    background: var(--surface);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .menu-back-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: var(--ink-soft);
+    flex-shrink: 0;
+  }
+  .menu-back-btn:active { background: var(--line); }
+  .menu-topbar-info { flex: 1; min-width: 0; }
+  .menu-topbar-info .case-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .menu-topbar-info .case-date {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  /* Hero banner */
+  .menu-hero {
+    background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
+    padding: 28px 20px 24px;
+    color: #fff;
+  }
+  .menu-hero .greeting {
+    font-size: 13px;
+    opacity: 0.75;
+    margin-bottom: 4px;
+  }
+  .menu-hero .hero-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .menu-hero .progress-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .progress-bar-wrap {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    font-size: 12px;
+    opacity: 0.85;
+    white-space: nowrap;
+  }
+
+  /* Module grid */
+  .menu-body { padding: 16px; }
+  .module-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .module-card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 18px 14px 16px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    transition: transform 0.12s, box-shadow 0.12s;
+    -webkit-user-select: none;
+    user-select: none;
+    border: 1.5px solid transparent;
+    position: relative;
+  }
+  .module-card:active {
+    transform: scale(0.96);
+    box-shadow: none;
+  }
+  .module-card.has-data {
+    border-color: var(--card-color, var(--primary));
+  }
+  .module-icon-wrap {
+    width: 46px; height: 46px;
+    border-radius: 14px;
+    background: var(--card-bg, #eff6ff);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .module-card .mod-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+  .module-card .mod-desc {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: -6px;
+  }
+  .module-done-dot {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--card-color, var(--primary));
+    display: none;
+  }
+  .module-card.has-data .module-done-dot { display: block; }
+
+  /* Module color themes */
+  .mod-stair    { --card-color: var(--stair-c);    --card-bg: #fff7ed; }
+  .mod-ha       { --card-color: var(--ha-c);        --card-bg: #f5f3ff; }
+  .mod-transfer { --card-color: var(--transfer-c);  --card-bg: #f0f9ff; }
+  .mod-cushion  { --card-color: var(--cushion-c);   --card-bg: #fdf2f8; }
+  .mod-airbed   { --card-color: var(--airbed-c);    --card-bg: #f0fdfa; }
+  .mod-wc       { --card-color: var(--wc-c);        --card-bg: #eff6ff; }
+  .mod-walker   { --card-color: var(--walker-c);    --card-bg: #f7fee7; }
+  .mod-shower   { --card-color: var(--shower-c);    --card-bg: #fffbeb; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 88px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(15,23,42,0.88);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 24px;
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    white-space: nowrap;
+    z-index: 200;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── "Coming soon" placeholder ── */
+  .coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .coming-soon .cs-icon { font-size: 48px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== LIST VIEW ===================== -->
+  <section id="listView" class="view active">
+    <div class="list-topbar">
+      <h1>輔具評估</h1>
+      <div class="sub" id="listSubtitle">個案管理</div>
+    </div>
+
+    <div class="list-body">
+      <p class="section-label">個案清單</p>
+      <div id="caseList"></div>
+    </div>
+
+    <button class="fab" id="fabBtn" title="新增個案">＋</button>
+  </section>
+
+  <!-- ===================== MENU VIEW ===================== -->
+  <section id="menuView" class="view">
+    <div class="menu-topbar">
+      <button class="menu-back-btn" id="menuBackBtn">‹</button>
+      <div class="menu-topbar-info">
+        <div class="case-name" id="menuCaseName">—</div>
+        <div class="case-date" id="menuCaseDate">—</div>
+      </div>
+    </div>
+
+    <div class="menu-hero">
+      <div class="greeting">評估項目</div>
+      <div class="hero-title" id="menuHeroName">個案名稱</div>
+      <div class="progress-row">
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <span class="progress-text" id="progressText">0 / 8 已填寫</span>
+      </div>
+    </div>
+
+    <div class="menu-body">
+      <div class="module-grid" id="moduleGrid">
+        <!-- rendered by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MODULE PLACEHOLDER ===================== -->
+  <section id="moduleView" class="view">
+    <div class="menu-topbar">
+      <button class="menu-back-btn" id="modBackBtn">‹</button>
+      <div class="menu-topbar-info">
+        <div class="case-name" id="modViewTitle">模組</div>
+      </div>
+    </div>
+    <div class="coming-soon">
+      <div class="cs-icon" id="modViewIcon">📋</div>
+      <div>此模組尚在開發中</div>
+      <div style="font-size:12px">請使用舊版 index.html 操作</div>
+    </div>
+  </section>
+
+</div>
+
+<!-- ===================== BOTTOM SHEET — New Case ===================== -->
+<div class="sheet-overlay" id="sheetOverlay"></div>
+<div class="sheet" id="newCaseSheet">
+  <div class="sheet-handle"></div>
+  <h2>新增個案</h2>
+
+  <div class="field-gap">
+    <label class="field-label" for="newName">個案名稱</label>
+    <input id="newName" type="text" placeholder="例：王先生 3F 公寓" maxlength="40" autocomplete="off">
+  </div>
+  <div class="field-gap">
+    <label class="field-label" for="newDate">評估日期</label>
+    <input id="newDate" type="date">
+  </div>
+
+  <div class="sheet-actions">
+    <button class="btn-ghost" id="cancelSheetBtn">取消</button>
+    <button class="btn-primary" id="confirmCreateBtn">建立個案</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Shared storage key — same as index.html
+   ============================================================ */
+const STORAGE_KEY = 'stairAssessmentCases.v1';
+let state = { cases: {}, currentCaseId: null };
+
+/* ── Utility ── */
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+}
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+function fmtDate(ts) {
+  const d = new Date(ts);
+  return `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+}
+function fmtAssessmentDate(str) {
+  if (!str) return '未填日期';
+  const [y, m, day] = str.split('-');
+  return `${y}/${parseInt(m)}/${parseInt(day)}`;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
+}
+
+/* ── Default data shapes ── */
+function defaultBlock() {
+  return [{ id: uid(), type: 'stair', steps: [{ id: uid(), height: '', slope: '' }], width: '' }];
+}
+function defaultWheelchair() {
+  return { height:'',weight:'',seatWidth:'',hipToKnee:'',kneeToFoot:'',shoulderHeight:'',staticSeating:'',subsidy:[],subsidyItems:[] };
+}
+function defaultTransfer()  { return { waist:'',sittingBalance:'',sitToStand:'',resultItems:[],subsidy:[],exemptItems:'' }; }
+function defaultCushion()   { return { hipWidth:'',staticBalance:'',pressureRelief:'',assessmentResult:[],subsidy:[],exemptItems:'' }; }
+function defaultAirbed()    { return { mattressType:'',consciousness:'',staticBalance:'',assessmentResult:[],subsidy:[],exemptItems:'' }; }
+function defaultWalker()    { return { toneHead:'',sittingBalance:'',sitToStand:'',handleHeight:'',subsidy:[],exemptItems:'' }; }
+function defaultShower()    { return { hipWidth:'',pelvis:[],sittingBalance:'',subsidyItems:[],subsidy:[],exemptItems:'' }; }
+function defaultHa()        { return { gross_motor:{},fine_motor:{},locations:[],assistive_devices:[],renovations:[],subsidy:[],exemptItems:'' }; }
+
+/* ── Load / Save ── */
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.cases) state.cases = parsed.cases;
+    }
+  } catch(e) { console.warn('載入失敗', e); }
+  for (const id in state.cases) {
+    const c = state.cases[id];
+    if (!c.wheelchair) c.wheelchair = defaultWheelchair();
+    if (!c.transfer)   c.transfer   = defaultTransfer();
+    if (!c.cushion)    c.cushion    = defaultCushion();
+    if (!c.airbed)     c.airbed     = defaultAirbed();
+    if (!c.walker)     c.walker     = defaultWalker();
+    if (!c.shower)     c.shower     = defaultShower();
+    if (!c.homeAccessibility) c.homeAccessibility = defaultHa();
+  }
+}
+function saveState() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ cases: state.cases })); }
+  catch(e) { showToast('儲存失敗'); }
+}
+
+/* ── Case CRUD ── */
+function createCase(name, assessmentDate) {
+  const trimmed = (name || '').trim();
+  if (!trimmed) { showToast('請輸入個案名稱'); return null; }
+  for (const id in state.cases) {
+    if (state.cases[id].name === trimmed) { showToast('已存在相同名稱的個案'); return null; }
+  }
+  const id = uid(), now = Date.now();
+  state.cases[id] = {
+    id, name: trimmed,
+    assessmentDate: assessmentDate || '',
+    createdAt: now, updatedAt: now,
+    blocks: defaultBlock(),
+    wheelchair: defaultWheelchair(),
+    transfer: defaultTransfer(),
+    cushion: defaultCushion(),
+    airbed: defaultAirbed(),
+    walker: defaultWalker(),
+    shower: defaultShower(),
+    homeAccessibility: defaultHa()
+  };
+  saveState();
+  return id;
+}
+function deleteCase(id) {
+  if (!state.cases[id]) return;
+  if (!confirm(`確定刪除個案「${state.cases[id].name}」？此動作無法復原。`)) return;
+  delete state.cases[id];
+  saveState();
+  renderList();
+}
+
+/* ── Has-data helpers ── */
+function hasData(c) {
+  const wc = c.wheelchair;
+  const sh = c.shower;
+  const wk = c.walker;
+  const tf = c.transfer;
+  const cu = c.cushion;
+  const ab = c.airbed;
+  const ha = c.homeAccessibility;
+  return {
+    stair:    c.blocks && c.blocks.some(b => b.type==='stair' && b.steps.some(s => s.height || s.slope)),
+    wc:       wc && (wc.height || wc.weight || wc.seatWidth || wc.hipToKnee || wc.staticSeating ||
+              (Array.isArray(wc.subsidy) && wc.subsidy.length) || (Array.isArray(wc.subsidyItems) && wc.subsidyItems.length)),
+    cushion:  cu && (cu.hipWidth || cu.staticBalance || cu.pressureRelief || (Array.isArray(cu.assessmentResult) && cu.assessmentResult.length)),
+    airbed:   ab && (ab.mattressType || ab.consciousness || ab.staticBalance || (Array.isArray(ab.assessmentResult) && ab.assessmentResult.length)),
+    shower:   sh && ((Array.isArray(sh.pelvis) && sh.pelvis.length) || sh.hipWidth || sh.sittingBalance || (Array.isArray(sh.subsidyItems) && sh.subsidyItems.length)),
+    walker:   wk && (wk.toneHead || wk.sittingBalance || wk.sitToStand || wk.handleHeight),
+    transfer: tf && (tf.waist || tf.sittingBalance || tf.sitToStand || (Array.isArray(tf.resultItems) && tf.resultItems.length)),
+    ha:       ha && ((ha.gross_motor && Object.keys(ha.gross_motor).length) || (Array.isArray(ha.locations) && ha.locations.length) ||
+              (Array.isArray(ha.assistive_devices) && ha.assistive_devices.length) || (Array.isArray(ha.renovations) && ha.renovations.length))
+  };
+}
+
+/* ============================================================
+   LIST VIEW RENDERING
+   ============================================================ */
+function renderList() {
+  const list   = document.getElementById('caseList');
+  const entries = Object.values(state.cases).sort((a,b) => b.updatedAt - a.updatedAt);
+  document.getElementById('listSubtitle').textContent = entries.length ? `共 ${entries.length} 筆個案` : '個案管理';
+
+  if (entries.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <h3>尚無個案</h3>
+        <p>點右下角 ＋ 建立第一筆評估</p>
+      </div>`;
+    return;
+  }
+
+  const BADGE_CFG = [
+    { key:'stair',    cls:'badge-stair',    icon:'🏠', label:'爬梯機'   },
+    { key:'wc',       cls:'badge-wc',       icon:'♿', label:'輪椅'     },
+    { key:'cushion',  cls:'badge-cushion',  icon:'💺', label:'座墊'     },
+    { key:'airbed',   cls:'badge-airbed',   icon:'🛏', label:'床組'     },
+    { key:'shower',   cls:'badge-shower',   icon:'🚿', label:'沐浴便盆' },
+    { key:'walker',   cls:'badge-walker',   icon:'🚶', label:'助步車'   },
+    { key:'transfer', cls:'badge-transfer', icon:'🔄', label:'移位'     },
+    { key:'ha',       cls:'badge-ha',       icon:'🛠', label:'居家無障礙' }
+  ];
+
+  list.innerHTML = entries.map(c => {
+    const hd = hasData(c);
+    const badges = BADGE_CFG.filter(b => hd[b.key])
+      .map(b => `<span class="badge ${b.cls}">${b.icon} ${b.label}</span>`)
+      .join('');
+    return `
+      <div class="case-card" data-open-case="${c.id}">
+        <div class="case-card-top">
+          <div class="case-card-info">
+            <div class="name">${escapeHtml(c.name)}</div>
+            <div class="date">${fmtAssessmentDate(c.assessmentDate)}</div>
+          </div>
+          <button class="case-del-btn" data-del="${c.id}" aria-label="刪除個案">✕</button>
+        </div>
+        ${badges ? `<div class="badge-row">${badges}</div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   MENU VIEW RENDERING
+   ============================================================ */
+const MODULES = [
+  { id:'stair',    key:'stair',    icon:'🏠', label:'爬梯機',      desc:'樓梯量測記錄',      cls:'mod-stair'    },
+  { id:'ha',       key:'ha',       icon:'🛠', label:'居家無障礙',   desc:'居家環境評估記錄',   cls:'mod-ha'       },
+  { id:'transfer', key:'transfer', icon:'🔄', label:'移位輔具',     desc:'移位評估記錄',       cls:'mod-transfer' },
+  { id:'cushion',  key:'cushion',  icon:'💺', label:'輪椅座墊',     desc:'座墊評估記錄',       cls:'mod-cushion'  },
+  { id:'airbed',   key:'airbed',   icon:'🛏', label:'氣墊床／電動床', desc:'床具評估記錄',     cls:'mod-airbed'   },
+  { id:'wc',       key:'wc',       icon:'♿', label:'輪椅',         desc:'輔具評估記錄',       cls:'mod-wc'       },
+  { id:'walker',   key:'walker',   icon:'🚶', label:'帶輪型助步車', desc:'助步車評估記錄',     cls:'mod-walker'   },
+  { id:'shower',   key:'shower',   icon:'🚿', label:'沐浴椅／便盆椅', desc:'沐浴便盆評估記錄', cls:'mod-shower'   }
+];
+
+function renderMenu(caseId) {
+  const c = state.cases[caseId];
+  if (!c) return;
+  const hd = hasData(c);
+  const doneCount = Object.values(hd).filter(Boolean).length;
+
+  document.getElementById('menuCaseName').textContent  = c.name;
+  document.getElementById('menuCaseDate').textContent  = fmtAssessmentDate(c.assessmentDate);
+  document.getElementById('menuHeroName').textContent  = c.name;
+  document.getElementById('progressFill').style.width  = `${Math.round(doneCount / 8 * 100)}%`;
+  document.getElementById('progressText').textContent  = `${doneCount} / 8 已填寫`;
+
+  document.getElementById('moduleGrid').innerHTML = MODULES.map(m => `
+    <div class="module-card ${m.cls}${hd[m.key] ? ' has-data' : ''}" data-module="${m.id}">
+      <div class="module-done-dot"></div>
+      <div class="module-icon-wrap">${m.icon}</div>
+      <div>
+        <div class="mod-label">${m.label}</div>
+        <div class="mod-desc">${m.desc}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ============================================================
+   VIEW NAVIGATION
+   ============================================================ */
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+function showList() {
+  renderList();
+  showView('listView');
+}
+
+function showMenu(caseId) {
+  state.currentCaseId = caseId;
+  renderMenu(caseId);
+  showView('menuView');
+}
+
+function showModulePlaceholder(moduleId) {
+  const m = MODULES.find(x => x.id === moduleId);
+  if (!m) return;
+  document.getElementById('modViewTitle').textContent = m.label;
+  document.getElementById('modViewIcon').textContent  = m.icon;
+  showView('moduleView');
+}
+
+/* ============================================================
+   BOTTOM SHEET
+   ============================================================ */
+function openSheet() {
+  document.getElementById('newDate').value = new Date().toISOString().slice(0, 10);
+  document.getElementById('newName').value = '';
+  document.getElementById('sheetOverlay').classList.add('open');
+  document.getElementById('newCaseSheet').classList.add('open');
+  setTimeout(() => document.getElementById('newName').focus(), 300);
+}
+function closeSheet() {
+  document.getElementById('sheetOverlay').classList.remove('open');
+  document.getElementById('newCaseSheet').classList.remove('open');
+}
+
+/* ============================================================
+   EVENT LISTENERS
+   ============================================================ */
+document.getElementById('fabBtn').addEventListener('click', openSheet);
+document.getElementById('cancelSheetBtn').addEventListener('click', closeSheet);
+document.getElementById('sheetOverlay').addEventListener('click', closeSheet);
+
+document.getElementById('confirmCreateBtn').addEventListener('click', () => {
+  const name = document.getElementById('newName').value;
+  const date = document.getElementById('newDate').value;
+  const id   = createCase(name, date);
+  if (id) {
+    closeSheet();
+    renderList();
+    showToast('個案已建立');
+  }
+});
+
+document.getElementById('newName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('confirmCreateBtn').click();
+});
+
+/* Case list: open or delete */
+document.getElementById('caseList').addEventListener('click', e => {
+  const delBtn = e.target.closest('[data-del]');
+  if (delBtn) {
+    e.stopPropagation();
+    deleteCase(delBtn.dataset.del);
+    return;
+  }
+  const card = e.target.closest('[data-open-case]');
+  if (card) showMenu(card.dataset.openCase);
+});
+
+/* Menu: back */
+document.getElementById('menuBackBtn').addEventListener('click', showList);
+
+/* Menu: module click */
+document.getElementById('moduleGrid').addEventListener('click', e => {
+  const card = e.target.closest('[data-module]');
+  if (card) showModulePlaceholder(card.dataset.module);
+});
+
+/* Module placeholder: back */
+document.getElementById('modBackBtn').addEventListener('click', () => {
+  if (state.currentCaseId) showMenu(state.currentCaseId);
+  else showList();
+});
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+loadState();
+showList();
+</script>
+</body>
+</html>
