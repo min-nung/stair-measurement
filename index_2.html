@@ -1255,6 +1255,43 @@
   }
   .results-actions button.close:active { background: #075985; }
 
+  /* ── Inline 計算結果 ── */
+  .inline-results {
+    margin-top: 16px;
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    padding: 16px;
+  }
+  .inline-results-title {
+    color: var(--brand);
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .inline-results-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .inline-results-actions button {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 0;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    border: 1.5px solid var(--brand);
+    background: transparent;
+    color: var(--brand);
+    cursor: pointer;
+  }
+  .inline-results-actions button:active {
+    background: var(--brand);
+    color: #fff;
+  }
+
   select:focus, textarea:focus {
     border-color: #0369a1 !important;
     box-shadow: none;
@@ -1450,10 +1487,6 @@
 
   <!-- Editor View -->
   <section id="editorView" style="display:none;">
-    <div class="case-title-wrap">
-      <input id="caseTitleEdit" type="text" maxlength="40" placeholder="個案名稱">
-    </div>
-
     <div id="blocksContainer"></div>
 
     <div class="flow-actions" id="flowActions">
@@ -1462,6 +1495,13 @@
     </div>
 
     <button class="calc-btn" id="calcBtn">計算結果</button>
+
+    <div id="inlineResults" class="inline-results" style="display:none">
+      <div id="eligibilitySection"></div>
+      <div class="inline-results-actions">
+        <button id="homeFromResultsBtn">回到首頁</button>
+      </div>
+    </div>
 
     <div class="clear-module-section">
       <button class="clear-module-btn" data-clear-module="stair">清除此評估的所有資料</button>
@@ -1505,30 +1545,6 @@
 
 </div>
 
-<!-- Results Modal -->
-<div class="results-overlay" id="resultsOverlay">
-  <div class="results-modal" id="resultsModal">
-    <div class="handle"></div>
-    <h2 id="resultsTitle">量測結果</h2>
-    <div class="sub" id="resultsSub"></div>
-    <table class="results">
-      <thead>
-        <tr>
-          <th style="width:40%">項目</th>
-          <th>寬</th>
-          <th>深</th>
-        </tr>
-      </thead>
-      <tbody id="resultsBody"></tbody>
-    </table>
-    <div id="eligibilitySection"></div>
-    <div class="results-actions">
-      <button id="copyBtn">複製文字</button>
-      <button id="homeFromResultsBtn">回到首頁</button>
-      <button class="close" id="closeResultsBtn">關閉</button>
-    </div>
-  </div>
-</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1809,7 +1825,6 @@ function renameCurrentCase(newName) {
   for (const id in state.cases) {
     if (id !== c.id && state.cases[id].name === trimmed) {
       showToast('已存在相同名稱的個案');
-      document.getElementById('caseTitleEdit').value = c.name;
       return;
     }
   }
@@ -2043,7 +2058,6 @@ function escapeHtml(s) {
 function renderEditor() {
   const c = state.cases[state.currentCaseId];
   if (!c) return;
-  document.getElementById('caseTitleEdit').value = c.name;
 
   const container = document.getElementById('blocksContainer');
   let stairNum = 0, platformNum = 0;
@@ -4384,35 +4398,10 @@ function computeAllEligibility(c) {
 }
 
 function renderResults(c) {
-  const r = computeResults(c);
-  const stairCount = c.blocks.filter(b => b.type === 'stair').length;
-  const platformCount = c.blocks.filter(b => b.type === 'platform').length;
-  const stepTotal = c.blocks.filter(b => b.type === 'stair').reduce((s, b) => s + b.steps.length, 0);
-
-  document.getElementById('resultsTitle').textContent = c.name;
-  document.getElementById('resultsSub').textContent =
-    `量測結果 ・ ${stairCount} 段樓梯 ・ ${platformCount} 個迴轉平台 ・ 共 ${stepTotal} 階`;
-
-  const rowHtml = (label, widthCell, depthCell) => {
-    return `<tr>
-      <td class="label">${label}</td>
-      <td class="value ${widthCell.empty ? 'none' : ''}">${widthCell.empty ? '—' : `${widthCell.text}<span class="unit-sm">${widthCell.unit||''}</span>`}</td>
-      <td class="value ${depthCell && depthCell.empty ? 'none' : ''}">${depthCell ? (depthCell.empty ? '—' : `${depthCell.text}<span class="unit-sm">${depthCell.unit||''}</span>`) : ''}</td>
-    </tr>`;
-  };
-
-  const rows = [];
-  rows.push(rowHtml('梯間迴轉平台（寬 × 深）', fmtRange(r.platform.width), fmtRange(r.platform.depth)));
-  rows.push(rowHtml('梯寬', fmtRange(r.stairWidth), null));
-  rows.push(rowHtml('梯深', fmtRange(r.stairDepth, 'cm', 0), null));
-  rows.push(rowHtml('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum), null));
-  rows.push(rowHtml('梯階高度', fmtRange(r.heightExceptFirst), null));
-  rows.push(rowHtml('第一階高', fmtRange(r.firstStepHeight), null));
-  rows.push(rowHtml('樓梯傾角', fmtRange(r.angle, '°', 0), null));
-
-  document.getElementById('resultsBody').innerHTML = rows.join('');
   document.getElementById('eligibilitySection').innerHTML = renderEligibilitySection(c);
-  document.getElementById('resultsOverlay').classList.add('active');
+  const inlineResults = document.getElementById('inlineResults');
+  inlineResults.style.display = 'block';
+  inlineResults.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function renderEligibilitySection(c) {
@@ -4605,6 +4594,7 @@ function showEditor(caseId) {
   state.currentCaseId = caseId;
   hideAllViews();
   document.getElementById('editorView').style.display = '';
+  document.getElementById('inlineResults').style.display = 'none';
   document.getElementById('backBtn').style.display = '';
   document.getElementById('headerTitle').textContent = '爬梯機評估';
   document.getElementById('subtitle').textContent = state.cases[caseId].name;
@@ -5719,13 +5709,6 @@ document.getElementById('calcBtn').addEventListener('click', () => {
 });
 
 // Title rename
-const titleInput = document.getElementById('caseTitleEdit');
-titleInput.addEventListener('change', e => renameCurrentCase(e.target.value));
-titleInput.addEventListener('blur', e => {
-  const c = state.cases[state.currentCaseId];
-  if (c && !e.target.value.trim()) e.target.value = c.name;
-});
-
 // Delegated input handler for all measurement fields
 document.getElementById('blocksContainer').addEventListener('input', e => {
   const t = e.target;
@@ -5754,36 +5737,9 @@ document.getElementById('blocksContainer').addEventListener('click', e => {
   }
 });
 
-// Results modal actions
-document.getElementById('closeResultsBtn').addEventListener('click', () => {
-  document.getElementById('resultsOverlay').classList.remove('active');
-});
+// Inline results actions
 document.getElementById('homeFromResultsBtn').addEventListener('click', () => {
-  document.getElementById('resultsOverlay').classList.remove('active');
   showList();
-});
-document.getElementById('resultsOverlay').addEventListener('click', e => {
-  if (e.target.id === 'resultsOverlay') {
-    document.getElementById('resultsOverlay').classList.remove('active');
-  }
-});
-document.getElementById('copyBtn').addEventListener('click', async () => {
-  const c = state.cases[state.currentCaseId];
-  if (!c) return;
-  const text = resultsAsText(c);
-  try {
-    await navigator.clipboard.writeText(text);
-    showToast('已複製結果文字');
-  } catch {
-    // Fallback
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    document.body.appendChild(ta);
-    ta.select();
-    try { document.execCommand('copy'); showToast('已複製結果文字'); }
-    catch { showToast('複製失敗'); }
-    document.body.removeChild(ta);
-  }
 });
 
 
