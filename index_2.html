@@ -1153,6 +1153,32 @@
     box-shadow: none;
     border: 1px solid #1e4a6e;
   }
+
+  /* ── FAB 返回按鈕 ── */
+  #fabBack {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: #0369a1;
+    color: #ffffff;
+    font-size: 24px;
+    line-height: 1;
+    border: none;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(3,105,161,0.35);
+  }
+  #fabBack:active {
+    background: #075985;
+    transform: scale(0.93);
+  }
 </style>
 </head>
 <body>
@@ -5137,6 +5163,17 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
 loadState();
 showList();
 document.getElementById('newCaseDate').value = new Date().toISOString().slice(0, 10);
+
+// FAB 返回按鈕：同步 backBtn 顯示狀態
+(function() {
+  const fab = document.getElementById('fabBack');
+  const btn = document.getElementById('backBtn');
+  new MutationObserver(function() {
+    fab.style.display = btn.style.display === 'none' ? 'none' : 'flex';
+  }).observe(btn, { attributes: true, attributeFilter: ['style'] });
+  fab.addEventListener('click', function() { if (typeof backFn !== 'undefined' && backFn) backFn(); });
+})();
 </script>
+<button id="fabBack" aria-label="返回上一頁" style="display:none;">&#8592;</button>
 </body>
 </html>
