@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -976,6 +976,8 @@
     padding: 14px 20px;
     box-shadow: none;
     border-bottom: 3px solid #075985;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
   }
   header.top .bar {
     display: flex;
@@ -1001,6 +1003,7 @@
     transition: background 0.12s;
     cursor: pointer;
     font-size: 14px;
+    box-shadow: none;
   }
   header.top .back-btn:active,
   header.top .action-btn:active { background: rgba(0,0,0,0.15); }
@@ -1195,7 +1198,7 @@
     align-items: center;
     justify-content: center;
     transition: background 0.12s, transform 0.1s;
-    box-shadow: 0 2px 8px rgba(3,105,161,0.35);
+    box-shadow: none;
   }
   #fabBack:active {
     background: #075985;
