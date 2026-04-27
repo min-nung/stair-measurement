@@ -973,26 +973,40 @@
   /* ── Header ── */
   header.top {
     background: #0369a1;
-    padding: 14px 0;
+    padding: 14px 20px;
     box-shadow: none;
     border-bottom: 3px solid #075985;
+  }
+  header.top .bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   header.top h1 {
     color: #ffffff;
     font-size: 18px;
     font-weight: 700;
     letter-spacing: 0.4px;
+    margin: 0;
+    flex: 1;
+    text-align: center;
   }
   header.top .back-btn,
   header.top .action-btn {
+    background: transparent;
+    border: none;
+    padding: 8px 12px;
     color: rgba(255,255,255,0.92);
     border-radius: 6px;
     transition: background 0.12s;
+    cursor: pointer;
+    font-size: 14px;
   }
   header.top .back-btn:active,
   header.top .action-btn:active { background: rgba(0,0,0,0.15); }
   header.top #saveIndicator {
     margin-left: auto;
+    padding: 0 8px;
     font-size: 12px;
     color: rgba(255,255,255,0.7);
     font-weight: 600;
@@ -5172,6 +5186,9 @@ loadState();
 showList();
 document.getElementById('newCaseDate').value = new Date().toISOString().slice(0, 10);
 
+</script>
+<button id="fabBack" aria-label="返回上一頁" style="display:none;">&#8592;</button>
+<script>
 // FAB 返回按鈕 + 儲存指示器：同步 backBtn 顯示狀態
 (function() {
   const fab = document.getElementById('fabBack');
@@ -5185,6 +5202,5 @@ document.getElementById('newCaseDate').value = new Date().toISOString().slice(0,
   fab.addEventListener('click', function() { if (typeof backFn !== 'undefined' && backFn) backFn(); });
 })();
 </script>
-<button id="fabBack" aria-label="返回上一頁" style="display:none;">&#8592;</button>
 </body>
 </html>
