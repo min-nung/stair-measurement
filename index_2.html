@@ -71,6 +71,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    position: relative;
   }
   header.top h1 {
     margin: 0;
@@ -79,6 +80,10 @@
     color: var(--brand);
     flex: 1;
     text-align: center;
+  }
+  header.top .back-btn {
+    position: absolute;
+    left: 0;
   }
   header.top .back-btn,
   header.top .action-btn {
@@ -93,7 +98,7 @@
   header.top .action-btn:active { background: var(--surface-2); }
   .subtitle {
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
     color: var(--muted);
     margin-top: 2px;
   }
@@ -1082,6 +1087,7 @@
     display: flex;
     align-items: center;
     gap: 12px;
+    position: relative;
   }
   header.top h1 {
     color: #ffffff;
@@ -1091,6 +1097,10 @@
     margin: 0;
     flex: 1;
     text-align: center;
+  }
+  header.top .back-btn {
+    position: absolute;
+    left: 0;
   }
   header.top .back-btn,
   header.top .action-btn {
@@ -1106,7 +1116,7 @@
   }
   header.top .back-btn:active,
   header.top .action-btn:active { background: rgba(0,0,0,0.15); }
-.subtitle { color: #7ec8e3; font-size: 13px; padding: 4px 0 0; letter-spacing: 0.2px; }
+.subtitle { color: #7ec8e3; font-size: 14px; padding: 4px 0 0; letter-spacing: 0.2px; }
 
   /* ── Menu 卡片 ── */
   .menu-grid { gap: 10px; }
@@ -1497,6 +1507,16 @@
     <button class="calc-btn" id="calcBtn">計算結果</button>
 
     <div id="inlineResults" class="inline-results" style="display:none">
+      <table class="results">
+        <thead>
+          <tr>
+            <th style="width:40%">項目</th>
+            <th>寬</th>
+            <th>深</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
       <div id="eligibilitySection"></div>
       <div class="inline-results-actions">
         <button id="homeFromResultsBtn">回到首頁</button>
@@ -4398,6 +4418,26 @@ function computeAllEligibility(c) {
 }
 
 function renderResults(c) {
+  const r = computeResults(c);
+
+  const rowHtml = (label, widthCell, depthCell) => {
+    return `<tr>
+      <td class="label">${label}</td>
+      <td class="value ${widthCell.empty ? 'none' : ''}">${widthCell.empty ? '—' : `${widthCell.text}<span class="unit-sm">${widthCell.unit||''}</span>`}</td>
+      <td class="value ${depthCell && depthCell.empty ? 'none' : ''}">${depthCell ? (depthCell.empty ? '—' : `${depthCell.text}<span class="unit-sm">${depthCell.unit||''}</span>`) : ''}</td>
+    </tr>`;
+  };
+
+  const rows = [];
+  rows.push(rowHtml('梯間迴轉平台（寬 × 深）', fmtRange(r.platform.width), fmtRange(r.platform.depth)));
+  rows.push(rowHtml('梯寬', fmtRange(r.stairWidth), null));
+  rows.push(rowHtml('梯深', fmtRange(r.stairDepth, 'cm', 0), null));
+  rows.push(rowHtml('相鄰兩斜邊加總', fmtRange(r.adjSlopeSum), null));
+  rows.push(rowHtml('梯階高度', fmtRange(r.heightExceptFirst), null));
+  rows.push(rowHtml('第一階高', fmtRange(r.firstStepHeight), null));
+  rows.push(rowHtml('樓梯傾角', fmtRange(r.angle, '°', 0), null));
+
+  document.getElementById('resultsBody').innerHTML = rows.join('');
   document.getElementById('eligibilitySection').innerHTML = renderEligibilitySection(c);
   const inlineResults = document.getElementById('inlineResults');
   inlineResults.style.display = 'block';
