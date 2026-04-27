@@ -1439,10 +1439,6 @@
         <input id="newCaseName" type="text" placeholder="輸入個案名稱（例：王先生 3F 公寓）" maxlength="40" autocomplete="off">
         <button class="primary" id="createCaseBtn">建立</button>
       </div>
-      <div class="date-row">
-        <label for="newCaseDate">評估日期</label>
-        <input id="newCaseDate" type="date">
-      </div>
     </div>
 
     <div class="list-header">
@@ -2025,8 +2021,14 @@ function formatDate(ts) {
 
 function fmtAssessmentDate(d) {
   if (!d) return '未填日期';
-  const [y, m, day] = d.split('-');
-  return `${y}/${parseInt(m)}/${parseInt(day)}`;
+  const [date, time] = d.split('T');
+  if (!date) return '未填日期';
+  const [y, m, day] = date.split('-');
+  const formatted = `${y}/${parseInt(m)}/${parseInt(day)}`;
+  if (time) {
+    return `${formatted} ${time}`;
+  }
+  return formatted;
 }
 
 function escapeHtml(s) {
@@ -5233,8 +5235,10 @@ document.body.addEventListener('click', e => {
    ========================================================================== */
 document.getElementById('createCaseBtn').addEventListener('click', () => {
   const input = document.getElementById('newCaseName');
-  const dateInput = document.getElementById('newCaseDate');
-  const id = createCase(input.value, dateInput.value);
+  const now = new Date();
+  const offset = now.getTimezoneOffset() * 60000;
+  const assessmentDate = new Date(now - offset).toISOString().slice(0, 16);
+  const id = createCase(input.value, assessmentDate);
   if (id) {
     input.value = '';
     showMainMenu(id);
@@ -5788,7 +5792,6 @@ document.getElementById('copyBtn').addEventListener('click', async () => {
    ========================================================================== */
 loadState();
 showList();
-document.getElementById('newCaseDate').value = new Date().toISOString().slice(0, 10);
 
 </script>
 <button id="fabBack" aria-label="返回上一頁" style="display:none;">&#8592;</button>
