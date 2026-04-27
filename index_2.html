@@ -693,11 +693,60 @@
   /* ---------- Assessment Badges ---------- */
   .assess-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
   .assess-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     font-size: 11px;
     padding: 3px 9px;
     border-radius: 10px;
     font-weight: 500;
   }
+  .badge-remove-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: none;
+    background: #e53e3e;
+    color: #fff;
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .badge-remove-btn:active { background: #c53030; }
+  .modify-btn {
+    background: transparent;
+    border: 1px solid #5B8DB8;
+    color: #5B8DB8;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    margin-right: 6px;
+  }
+  .modify-btn:active { background: rgba(91,141,184,0.12); }
+  .clear-module-section {
+    padding: 20px 16px 8px;
+    text-align: center;
+  }
+  .clear-module-btn {
+    background: transparent;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 320px;
+  }
+  .clear-module-btn:active { background: #fee2e2; }
   .stair-badge   { background: var(--stair-soft); color: var(--stair); }
   .wc-badge      { background: var(--wc-soft); color: var(--wc); }
   .shower-badge    { background: #ceeaea; color: #287878; }
@@ -705,6 +754,56 @@
   .transfer-badge  { background: #ece6f5; color: #7b5ea7; }
   .cushion-badge   { background: #f5e4cc; color: #b06a20; }
   .airbed-badge    { background: #dce8f5; color: #2e5fa0; }
+  /* ---------- Long-press Context Menu ---------- */
+  .lp-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    z-index: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .lp-menu {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 240px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .lp-menu-title {
+    padding: 14px 16px 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    border-bottom: 1px solid var(--line);
+  }
+  .lp-menu-item {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    text-align: left;
+    border: none;
+    background: transparent;
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--ink);
+  }
+  .lp-menu-item:active { background: var(--surface-2); }
+  .lp-menu-item.danger { color: #dc2626; }
+  .lp-menu-cancel {
+    display: block;
+    width: 100%;
+    padding: 14px 16px;
+    text-align: center;
+    border: none;
+    border-top: 1px solid var(--line);
+    background: transparent;
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  .lp-menu-cancel:active { background: var(--surface-2); }
   .two-col-options { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
   .two-col-options .col { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
   .two-col-options .col:first-child { border-right: 1px solid var(--line); }
@@ -1007,16 +1106,7 @@
   }
   header.top .back-btn:active,
   header.top .action-btn:active { background: rgba(0,0,0,0.15); }
-  header.top #saveIndicator {
-    margin-left: auto;
-    padding: 0 8px;
-    font-size: 12px;
-    color: rgba(255,255,255,0.7);
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  header.top #saveIndicator.saved { color: rgba(255,255,255,0.95); }
-  .subtitle { color: #7ec8e3; font-size: 13px; padding: 4px 0 0; letter-spacing: 0.2px; }
+.subtitle { color: #7ec8e3; font-size: 13px; padding: 4px 0 0; letter-spacing: 0.2px; }
 
   /* ── Menu 卡片 ── */
   .menu-grid { gap: 10px; }
@@ -1204,6 +1294,92 @@
     background: #075985;
     transform: scale(0.93);
   }
+
+  /* ── Platform type toggle ── */
+  .platform-type-wrap {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+  }
+
+  /* ── Eligibility Section ── */
+  .elig-section {
+    margin: 16px 0 4px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .elig-section-title {
+    padding: 10px 14px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .elig-type-card {
+    border-bottom: 1px solid var(--line);
+  }
+  .elig-type-card:last-child { border-bottom: none; }
+  .elig-type-title {
+    padding: 8px 14px 4px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted, #888);
+  }
+  .elig-mode-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 14px 5px;
+    flex-wrap: wrap;
+  }
+  .elig-mode-label {
+    font-size: 13px;
+    color: var(--ink-soft);
+    min-width: 36px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+  .elig-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .elig-allow    { background: #d1fae5; color: #065f46; }
+  .elig-warning  { background: #fef3c7; color: #92400e; }
+  .elig-project  { background: #dbeafe; color: #1e3a8a; }
+  .elig-forbidden{ background: #fee2e2; color: #991b1b; }
+  .elig-detail { flex: 1; min-width: 0; }
+  .elig-notes {
+    margin: 2px 0 0;
+    padding-left: 14px;
+    list-style: disc;
+  }
+  .elig-notes li {
+    font-size: 12px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .elig-docs {
+    font-size: 11px;
+    color: var(--muted, #888);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  @media (prefers-color-scheme: dark) {
+    .elig-allow    { background: #064e3b; color: #6ee7b7; }
+    .elig-warning  { background: #78350f; color: #fde68a; }
+    .elig-project  { background: #1e3a8a; color: #bfdbfe; }
+    .elig-forbidden{ background: #7f1d1d; color: #fca5a5; }
+  }
 </style>
 </head>
 <body>
@@ -1212,7 +1388,6 @@
     <div class="bar">
       <button class="back-btn" id="backBtn" style="display:none;">‹ 返回</button>
       <h1 id="headerTitle">輔具評估系統</h1>
-      <span class="save-indicator saved" id="saveIndicator" style="display:none;">已儲存</span>
     </div>
     <div class="subtitle" id="subtitle">選擇評估項目</div>
   </header>
@@ -1224,42 +1399,34 @@
       <button class="menu-card stair-card" id="menuStairBtn">
         <div class="menu-icon">🏠</div>
         <div class="menu-label">爬梯機</div>
-        <div class="menu-desc">樓梯量測記錄</div>
       </button>
       <button class="menu-card ha-card" id="menuHomeAccessBtn">
         <div class="menu-icon">🛠</div>
         <div class="menu-label">居家無障礙</div>
-        <div class="menu-desc">居家環境評估記錄</div>
       </button>
       <button class="menu-card transfer-card" id="menuTransferBtn">
         <div class="menu-icon">🔄</div>
         <div class="menu-label">移位輔具</div>
-        <div class="menu-desc">移位評估記錄</div>
       </button>
       <button class="menu-card cushion-card" id="menuCushionBtn">
         <div class="menu-icon">💺</div>
         <div class="menu-label">輪椅座墊</div>
-        <div class="menu-desc">座墊評估記錄</div>
       </button>
       <button class="menu-card airbed-card" id="menuAirbedBtn">
         <div class="menu-icon">🛏</div>
         <div class="menu-label">氣墊床／電動床</div>
-        <div class="menu-desc">床具評估記錄</div>
       </button>
       <button class="menu-card wc-card" id="menuWheelchairBtn">
         <div class="menu-icon">♿</div>
         <div class="menu-label">輪椅</div>
-        <div class="menu-desc">輔具評估記錄</div>
       </button>
       <button class="menu-card walker-card" id="menuWalkerBtn">
         <div class="menu-icon">🚶</div>
         <div class="menu-label">帶輪型助步車</div>
-        <div class="menu-desc">助步車評估記錄</div>
       </button>
       <button class="menu-card shower-card" id="menuShowerBtn">
         <div class="menu-icon">🚿</div>
         <div class="menu-label">沐浴椅／便盆椅</div>
-        <div class="menu-desc">沐浴便盆評估記錄</div>
       </button>
     </div>
   </section>
@@ -1299,6 +1466,10 @@
     </div>
 
     <button class="calc-btn" id="calcBtn">計算結果</button>
+
+    <div class="clear-module-section">
+      <button class="clear-module-btn" data-clear-module="stair">清除此評估的所有資料</button>
+    </div>
   </section>
 
   <!-- Wheelchair View -->
@@ -1354,6 +1525,7 @@
       </thead>
       <tbody id="resultsBody"></tbody>
     </table>
+    <div id="eligibilitySection"></div>
     <div class="results-actions">
       <button id="copyBtn">複製文字</button>
       <button id="homeFromResultsBtn">回到首頁</button>
@@ -1553,6 +1725,12 @@ function loadState() {
     if (!c.walker)    c.walker    = defaultWalker();
     if (!c.shower)    c.shower    = defaultShower();
     if (!c.homeAccessibility) c.homeAccessibility = defaultHomeAccessibility();
+    // Migrate: add platformType to existing platform blocks
+    if (c.blocks) {
+      c.blocks.forEach(b => {
+        if (b.type === 'platform' && !b.platformType) b.platformType = 'Standard';
+      });
+    }
     // Migrate subsidy from string to array
     ['wheelchair','shower','walker','transfer','cushion','airbed','homeAccessibility'].forEach(key => {
       if (c[key] && typeof c[key].subsidy === 'string') {
@@ -1663,7 +1841,8 @@ function makePlatform() {
     type: 'platform',
     width: '',
     depth1: '',
-    depth2: ''
+    depth2: '',
+    platformType: 'Standard'
   };
 }
 
@@ -1760,6 +1939,22 @@ function updateField(blockId, field, value, stepId) {
 /* ==========================================================================
    Rendering — List View
    ========================================================================== */
+let editingCaseId = null;
+
+function moduleHasData(c, key) {
+  switch (key) {
+    case 'stair': return !!(c.blocks && c.blocks.some(b => b.type === 'stair' && b.steps.some(s => s.height || s.slope)));
+    case 'wheelchair': { const wc = c.wheelchair; return !!(wc && (wc.height || wc.weight || wc.seatWidth || wc.hipToKnee || wc.kneeToFoot || wc.shoulderHeight || wc.staticSeating || (Array.isArray(wc.subsidy) && wc.subsidy.length > 0) || (Array.isArray(wc.subsidyItems) && wc.subsidyItems.length > 0))); }
+    case 'shower': { const sh = c.shower; return !!(sh && ((Array.isArray(sh.pelvis) && sh.pelvis.length > 0) || sh.hipWidth || sh.sittingBalance || (Array.isArray(sh.subsidyItems) && sh.subsidyItems.length > 0))); }
+    case 'walker': { const wk = c.walker; return !!(wk && (wk.toneHead || wk.sittingBalance || wk.sitToStand || wk.handleHeight)); }
+    case 'transfer': { const tf = c.transfer; return !!(tf && (tf.waist || tf.sittingBalance || tf.sitToStand || (Array.isArray(tf.resultItems) && tf.resultItems.length > 0))); }
+    case 'cushion': { const cu = c.cushion; return !!(cu && (cu.hipWidth || cu.staticBalance || cu.pressureRelief || (Array.isArray(cu.assessmentResult) && cu.assessmentResult.length > 0))); }
+    case 'airbed': { const ab = c.airbed; return !!(ab && (ab.mattressType || ab.consciousness || ab.staticBalance || (Array.isArray(ab.assessmentResult) && ab.assessmentResult.length > 0))); }
+    case 'homeAccessibility': { const ha = c.homeAccessibility; return !!(ha && ((ha.gross_motor && Object.keys(ha.gross_motor).length > 0) || (ha.fine_motor && Object.keys(ha.fine_motor).length > 0) || (Array.isArray(ha.locations) && ha.locations.length > 0) || (Array.isArray(ha.assistive_devices) && ha.assistive_devices.length > 0) || (Array.isArray(ha.renovations) && ha.renovations.length > 0) || (Array.isArray(ha.subsidy) && ha.subsidy.length > 0))); }
+    default: return false;
+  }
+}
+
 function renderList() {
   const list = document.getElementById('caseList');
   const entries = Object.values(state.cases).sort((a, b) => b.updatedAt - a.updatedAt);
@@ -1778,44 +1973,31 @@ function renderList() {
   }
 
   list.innerHTML = entries.map(c => {
-    const hasStairData = c.blocks && c.blocks.some(b => b.type === 'stair' && b.steps.some(s => s.height || s.slope));
-    const wc = c.wheelchair;
-    const hasWcData = wc && (wc.height || wc.weight || wc.seatWidth || wc.hipToKnee ||
-      wc.kneeToFoot || wc.shoulderHeight || wc.staticSeating ||
-      (Array.isArray(wc.subsidy) && wc.subsidy.length > 0) ||
-      (Array.isArray(wc.subsidyItems) && wc.subsidyItems.length > 0));
-    const sh = c.shower;
-    const hasShowerData = sh && ((Array.isArray(sh.pelvis) && sh.pelvis.length > 0) ||
-      sh.hipWidth || sh.sittingBalance || (Array.isArray(sh.subsidyItems) && sh.subsidyItems.length > 0));
-    const wk = c.walker;
-    const hasWalkerData = wk && (wk.toneHead || wk.sittingBalance || wk.sitToStand || wk.handleHeight);
-    const tf = c.transfer;
-    const hasTransferData = tf && (tf.waist || tf.sittingBalance || tf.sitToStand ||
-      (Array.isArray(tf.resultItems) && tf.resultItems.length > 0));
-    const cu = c.cushion;
-    const hasCushionData = cu && (cu.hipWidth || cu.staticBalance || cu.pressureRelief ||
-      (Array.isArray(cu.assessmentResult) && cu.assessmentResult.length > 0));
-    const ab = c.airbed;
-    const hasAirbedData = ab && (ab.mattressType || ab.consciousness || ab.staticBalance ||
-      (Array.isArray(ab.assessmentResult) && ab.assessmentResult.length > 0));
-    const ha = c.homeAccessibility;
-    const hasHaData = ha && (
-      (ha.gross_motor && Object.keys(ha.gross_motor).length > 0) ||
-      (ha.fine_motor && Object.keys(ha.fine_motor).length > 0) ||
-      (Array.isArray(ha.locations) && ha.locations.length > 0) ||
-      (Array.isArray(ha.assistive_devices) && ha.assistive_devices.length > 0) ||
-      (Array.isArray(ha.renovations) && ha.renovations.length > 0) ||
-      (Array.isArray(ha.subsidy) && ha.subsidy.length > 0)
-    );
+    const hasStairData    = moduleHasData(c, 'stair');
+    const hasWcData       = moduleHasData(c, 'wheelchair');
+    const hasShowerData   = moduleHasData(c, 'shower');
+    const hasWalkerData   = moduleHasData(c, 'walker');
+    const hasTransferData = moduleHasData(c, 'transfer');
+    const hasCushionData  = moduleHasData(c, 'cushion');
+    const hasAirbedData   = moduleHasData(c, 'airbed');
+    const hasHaData       = moduleHasData(c, 'homeAccessibility');
+    const isEditing = editingCaseId === c.id;
+    function makeBadge(hasData, cls, label, mod) {
+      if (!hasData) return '';
+      const xBtn = isEditing
+        ? `<button class="badge-remove-btn" data-remove-module="${mod}" data-case-id="${c.id}">×</button>`
+        : '';
+      return `<span class="assess-badge ${cls}">${label}${xBtn}</span>`;
+    }
     const badges = [
-      hasStairData    ? '<span class="assess-badge stair-badge">🏠 爬梯機</span>' : '',
-      hasWcData       ? '<span class="assess-badge wc-badge">♿ 輪椅</span>' : '',
-      hasCushionData  ? '<span class="assess-badge cushion-badge">💺 座墊</span>' : '',
-      hasAirbedData   ? '<span class="assess-badge airbed-badge">🛏 床組</span>' : '',
-      hasShowerData   ? '<span class="assess-badge shower-badge">🚿 沐浴便盆</span>' : '',
-      hasWalkerData   ? '<span class="assess-badge walker-badge">🚶 助步車</span>' : '',
-      hasTransferData ? '<span class="assess-badge transfer-badge">🔄 移位</span>' : '',
-      hasHaData       ? '<span class="assess-badge ha-badge">🛠 居家無障礙</span>' : ''
+      makeBadge(hasStairData,    'stair-badge',    '🏠 爬梯機',   'stair'),
+      makeBadge(hasWcData,       'wc-badge',       '♿ 輪椅',      'wheelchair'),
+      makeBadge(hasCushionData,  'cushion-badge',  '💺 座墊',      'cushion'),
+      makeBadge(hasAirbedData,   'airbed-badge',   '🛏 床組',      'airbed'),
+      makeBadge(hasShowerData,   'shower-badge',   '🚿 沐浴便盆',  'shower'),
+      makeBadge(hasWalkerData,   'walker-badge',   '🚶 助步車',    'walker'),
+      makeBadge(hasTransferData, 'transfer-badge', '🔄 移位',      'transfer'),
+      makeBadge(hasHaData,       'ha-badge',       '🛠 居家無障礙','homeAccessibility')
     ].filter(Boolean).join('');
     return `
       <div class="case-item" data-open-case="${c.id}">
@@ -1825,6 +2007,7 @@ function renderList() {
             <div class="meta">${fmtAssessmentDate(c.assessmentDate)}</div>
             ${badges ? `<div class="assess-badges">${badges}</div>` : ''}
           </div>
+          <button class="modify-btn" data-toggle-edit="${c.id}">${isEditing ? '完成' : '修改'}</button>
           <button class="del-btn" data-del="${c.id}">刪除</button>
         </div>
       </div>
@@ -1995,6 +2178,19 @@ function renderPlatform(b, num, canDelete) {
                        value="${escapeAttr(b.depth2)}" placeholder="深度">
                 <span class="unit">cm</span>
               </div>
+            </div>
+          </div>
+          <div class="platform-type-wrap">
+            <label class="field-label">平台類型</label>
+            <div class="shoe-toggle" style="width:fit-content;">
+              <input type="radio" id="pt-std-${b.id}" name="pt-${b.id}"
+                     data-block="${b.id}" data-field="platformType"
+                     value="Standard" ${b.platformType !== 'Special' ? 'checked' : ''}>
+              <label for="pt-std-${b.id}">一般</label>
+              <input type="radio" id="pt-spc-${b.id}" name="pt-${b.id}"
+                     data-block="${b.id}" data-field="platformType"
+                     value="Special" ${b.platformType === 'Special' ? 'checked' : ''}>
+              <label for="pt-spc-${b.id}">特殊型</label>
             </div>
           </div>
         </div>
@@ -2384,6 +2580,10 @@ function renderWheelchairForm(caseId) {
       <div class="wc-dim-row"><span class="wc-dim-label">扶手高度</span><span class="wc-dim-value" id="wcDim-arm">—</span></div>
     </div>
   </div>
+
+  <div class="clear-module-section">
+    <button class="clear-module-btn" data-clear-module="wheelchair">清除此評估的所有資料</button>
+  </div>
   `;
 
   document.getElementById('wcFormContainer').innerHTML = html;
@@ -2560,6 +2760,10 @@ function renderShowerForm(caseId) {
       <label class="wc-label">免評估項目</label>
       <input type="text" class="wc-input" data-sh-field="exemptItems" value="${escapeAttr(sh.exemptItems)}" placeholder="填寫文字">
     </div>
+  </div>
+
+  <div class="clear-module-section">
+    <button class="clear-module-btn" data-clear-module="shower">清除此評估的所有資料</button>
   </div>
   `;
 }
@@ -2751,6 +2955,10 @@ function renderWalkerForm(caseId) {
       <label class="wc-label">免評估項目</label>
       <input type="text" class="wc-input" data-wk-field="exemptItems" value="${escapeAttr(wk.exemptItems)}" placeholder="填寫文字">
     </div>
+  </div>
+
+  <div class="clear-module-section">
+    <button class="clear-module-btn" data-clear-module="walker">清除此評估的所有資料</button>
   </div>
   `;
 }
@@ -3249,6 +3457,10 @@ function renderCushionForm(caseId) {
       <label class="wc-label">免評估項目</label>
       <input type="text" class="wc-input" data-cs-field="exemptItems" value="${escapeAttr(cs.exemptItems)}" placeholder="填寫文字">
     </div>
+  </div>
+
+  <div class="clear-module-section">
+    <button class="clear-module-btn" data-clear-module="cushion">清除此評估的所有資料</button>
   </div>`;
 }
 
@@ -3615,8 +3827,6 @@ function renderAirbedForm(caseId) {
 
   <div class="wc-section">
     <h3>17. 床面相關身體及空間量測</h3>
-    ${abNum('clientHeight','個案身高','cm')}
-    ${abNum('clientWeight','個案體重','kg')}
     ${abNum('poplitealHeight','個案膝窩高','cm')}
     ${abNum('shoulderWidth','個案肩寬','cm')}
     ${abNum('caregiverHeight','主要照顧者身高','cm')}
@@ -3773,6 +3983,10 @@ function renderAirbedForm(caseId) {
       <textarea class="wc-textarea" data-ab-field="exemptItems" placeholder="填寫免評估項目">${escapeHtml(ab.exemptItems || '')}</textarea>
     </div>
   </div>
+
+  <div class="clear-module-section">
+    <button class="clear-module-btn" data-clear-module="airbed">清除此評估的所有資料</button>
+  </div>
   `;
 }
 
@@ -3860,6 +4074,10 @@ function renderTransferForm(caseId) {
       <label class="wc-label">免評估項目</label>
       <input type="text" class="wc-input" data-tf-field="exemptItems" value="${escapeAttr(tf.exemptItems)}" placeholder="填寫文字">
     </div>
+  </div>
+
+  <div class="clear-module-section">
+    <button class="clear-module-btn" data-clear-module="transfer">清除此評估的所有資料</button>
   </div>`;
 }
 
@@ -4017,6 +4235,152 @@ function computeResults(c) {
   };
 }
 
+function computeEligibility(c, r, climberType, serviceMode) {
+  const angle         = r.angle         ? r.angle.max          : null;
+  const h1            = r.firstStepHeight ? r.firstStepHeight.max : null;
+  const h_others      = r.heightExceptFirst ? r.heightExceptFirst.max : null;
+  const step_depth    = r.stairDepth    ? r.stairDepth.min     : null;
+  const platform_depth = r.platform.depth ? r.platform.depth.min : null;
+  const hasSpecial = c.blocks.some(b => b.type === 'platform' && b.platformType === 'Special');
+
+  let eligibility = 'Allow';
+  const constraints = [];
+  const required_actions = [];
+  const missing_docs = [];
+
+  const promote = (level) => {
+    const rank = { Allow: 0, Warning: 1, Project: 2, Forbidden: 3 };
+    if (rank[level] > rank[eligibility]) eligibility = level;
+  };
+
+  if (climberType === 'Crawler' || climberType === 'CrawlerChair') {
+    if (angle !== null) {
+      if (serviceMode === 'Single') {
+        if (angle > 40) {
+          promote('Project'); constraints.push(`傾角 ${angle.toFixed(1)}° 超過 40°（單次服務上限）`);
+        } else if (angle > 35) {
+          constraints.push(`傾角 ${angle.toFixed(1)}° 超出產品建議使用之安全範圍`);
+        }
+      } else {
+        if (angle > 37) {
+          promote('Project'); constraints.push(`傾角 ${angle.toFixed(1)}° 超過 37°`);
+        } else if (angle > 35) {
+          promote('Warning'); constraints.push(`傾角 ${angle.toFixed(1)}° 超出建議範圍（35°–37°）`);
+        }
+      }
+    }
+    if (climberType === 'Crawler' && h1 !== null && h1 > 20) {
+      required_actions.push('需加墊使第一階低於 20 cm');
+    }
+    if (platform_depth !== null || hasSpecial) {
+      const pd = platform_depth;
+      if (hasSpecial || (pd !== null && pd < 85)) {
+        // 規格：深度 < 85 或特殊型平台，僅限 CrawlerChair 走專案申請
+        if (climberType === 'Crawler') {
+          promote('Forbidden');
+          constraints.push('平台深度 < 85 cm 或特殊型平台，不適用（請改用履帶式電動爬梯椅）');
+        } else {
+          promote('Project');
+          constraints.push('平台深度 < 85 cm 或特殊型平台，需專案申請');
+          missing_docs.push('廠商或照顧者操作影片');
+        }
+      } else if (pd !== null && pd < 90) {
+        // 規格：85–90 cm，僅限 CrawlerChair，不需附文件
+        if (climberType === 'Crawler') {
+          promote('Forbidden');
+          constraints.push(`平台深度 ${pd.toFixed(1)} cm（85–90 cm），不適用（請改用履帶式電動爬梯椅）`);
+        } else {
+          constraints.push(`平台深度 ${pd.toFixed(1)} cm（85–90 cm），僅適用履帶式電動爬梯椅`);
+        }
+      } else if (pd !== null && pd < 95) {
+        if (climberType === 'Crawler') {
+          constraints.push(`平台深度 ${pd.toFixed(1)} cm（90–95 cm），建議直接坐椅型，需影片複評`);
+          missing_docs.push('操作影片');
+        }
+      } else if (pd !== null && pd < 100) {
+        if (climberType === 'Crawler') {
+          constraints.push(`平台深度 ${pd.toFixed(1)} cm（95–100 cm），建議輪椅附掛型，需影片複評`);
+          missing_docs.push('操作影片');
+        }
+      } else if (pd !== null && pd < 105) {
+        if (climberType === 'Crawler') {
+          constraints.push(`平台深度 ${pd.toFixed(1)} cm（100–105 cm），建議兩用型，需影片複評`);
+          missing_docs.push('操作影片');
+        }
+      }
+    }
+  }
+
+  if (climberType === 'Stick') {
+    if (h1 !== null && h1 > 21 && h_others !== null && h_others <= 21) {
+      required_actions.push('需加墊（第一階超 21 cm，墊子深度 ≥ 12 cm）');
+    }
+    if (h_others !== null && h_others > 21) {
+      if (serviceMode !== 'Purchase') {
+        promote('Forbidden');
+        constraints.push(`其餘各階高度 ${h_others.toFixed(1)} cm 超過 21 cm，不可租賃`);
+      } else if (h_others <= 22.5) {
+        // 規格：21 < h_others ≤ 22.5，購置可選配撐桿加長配件
+        required_actions.push('需選配撐桿加長配件（其餘各階高超過 21 cm）');
+      } else {
+        // 規格：h_others > 22.5，購置也無法使用
+        promote('Forbidden');
+        constraints.push(`其餘各階高度 ${h_others.toFixed(1)} cm 超過 22.5 cm，不可使用`);
+      }
+    }
+    if (step_depth !== null) {
+      if (step_depth < 12) {
+        promote('Forbidden');
+        constraints.push(`梯深 ${step_depth.toFixed(1)} cm 不足 12 cm，不可使用`);
+      } else if (step_depth < 14) {
+        constraints.push(`梯深 ${step_depth.toFixed(1)} cm（12–14 cm），需拍攝操作影片複評`);
+        missing_docs.push('操作影片（影片複評）');
+      }
+    }
+    if (platform_depth !== null && platform_depth < 63) {
+      promote('Forbidden');
+      constraints.push(`平台深度 ${platform_depth.toFixed(1)} cm 不足 63 cm，不可使用`);
+    }
+    if (hasSpecial) {
+      constraints.push('特殊型平台，需拍攝操作影片複評');
+      missing_docs.push('操作影片（特殊型平台）');
+    }
+  }
+
+  if (eligibility === 'Project') {
+    missing_docs.unshift('使用爬梯機服務風險告知同意書');
+    const hasVideo = missing_docs.some(d => d.includes('操作影片'));
+    if (!hasVideo) {
+      missing_docs.push(serviceMode === 'Single' ? '廠商操作影片' : '照顧者操作影片');
+    }
+    // 月租/購置 或 平台<85/特殊型：規格為「報告書或認證書」擇一
+    const needsCertOr = serviceMode === 'Monthly' || serviceMode === 'Purchase' ||
+        (platform_depth !== null && platform_depth < 85) || hasSpecial;
+    missing_docs.push(needsCertOr
+      ? '「爬梯機操作改善報告書或廠商核發之操作認證書」'
+      : '爬梯機操作改善報告書');
+  }
+
+  const seen = new Set();
+  const uniqueDocs = missing_docs.filter(d => { if (seen.has(d)) return false; seen.add(d); return true; });
+
+  return { eligibility, constraints, required_actions, missing_docs: uniqueDocs };
+}
+
+function computeAllEligibility(c) {
+  const r = computeResults(c);
+  const types = ['Crawler', 'CrawlerChair', 'Stick'];
+  const modes = ['Single', 'Monthly', 'Purchase'];
+  const results = {};
+  for (const t of types) {
+    results[t] = {};
+    for (const m of modes) {
+      results[t][m] = computeEligibility(c, r, t, m);
+    }
+  }
+  return results;
+}
+
 function renderResults(c) {
   const r = computeResults(c);
   const stairCount = c.blocks.filter(b => b.type === 'stair').length;
@@ -4045,7 +4409,45 @@ function renderResults(c) {
   rows.push(rowHtml('樓梯傾角', fmtRange(r.angle, '°', 0), null));
 
   document.getElementById('resultsBody').innerHTML = rows.join('');
+  document.getElementById('eligibilitySection').innerHTML = renderEligibilitySection(c);
   document.getElementById('resultsOverlay').classList.add('active');
+}
+
+function renderEligibilitySection(c) {
+  const all = computeAllEligibility(c);
+  const typeLabels = { Crawler: '履帶式爬梯機', CrawlerChair: '履帶式電動爬梯椅', Stick: '撐桿式爬梯機' };
+  const modeLabels = { Single: '單次', Monthly: '月租', Purchase: '購置' };
+  const badgeClass = { Allow: 'elig-allow', Warning: 'elig-warning', Project: 'elig-project', Forbidden: 'elig-forbidden' };
+  const badgeLabel = { Allow: '適用', Warning: '注意', Project: '專案申請', Forbidden: '不適用' };
+
+  const typeCards = Object.entries(all).map(([type, modes]) => {
+    const modeRows = Object.entries(modes).map(([mode, res]) => {
+      const noteItems = [...res.constraints, ...res.required_actions];
+      const noteHtml = noteItems.length > 0
+        ? `<ul class="elig-notes">${noteItems.map(n => `<li>${escapeHtml(n)}</li>`).join('')}</ul>`
+        : '';
+      const docsHtml = res.missing_docs.length > 0
+        ? `<div class="elig-docs">所需文件：${res.missing_docs.map(d => escapeHtml(d)).join('、')}</div>`
+        : '';
+      return `
+        <div class="elig-mode-row">
+          <span class="elig-mode-label">${modeLabels[mode]}</span>
+          <span class="elig-badge ${badgeClass[res.eligibility]}">${badgeLabel[res.eligibility]}</span>
+          <div class="elig-detail">${noteHtml}${docsHtml}</div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="elig-type-card">
+        <div class="elig-type-title">${typeLabels[type]}</div>
+        ${modeRows}
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="elig-section">
+      <div class="elig-section-title">爬梯機適用性</div>
+      ${typeCards}
+    </div>`;
 }
 
 function resultsAsText(c) {
@@ -4068,6 +4470,24 @@ function resultsAsText(c) {
     line('第一階高', fmtRange(r.firstStepHeight)),
     line('樓梯傾角', fmtRange(r.angle, '°', 0))
   ];
+
+  const all = computeAllEligibility(c);
+  const typeLabels = { Crawler: '履帶式爬梯機', CrawlerChair: '履帶式電動爬梯椅', Stick: '撐桿式爬梯機' };
+  const modeLabels = { Single: '單次', Monthly: '月租', Purchase: '購置' };
+  const badgeLabel = { Allow: '適用', Warning: '注意', Project: '專案申請', Forbidden: '不適用' };
+  lines.push('\n【爬梯機適用性】');
+  for (const [type, modes] of Object.entries(all)) {
+    lines.push(typeLabels[type]);
+    for (const [mode, res] of Object.entries(modes)) {
+      const label = `  ${modeLabels[mode]}：${badgeLabel[res.eligibility]}`;
+      const notes = [...res.constraints, ...res.required_actions];
+      lines.push(notes.length > 0 ? `${label}（${notes.join('；')}）` : label);
+      if (res.missing_docs.length > 0) {
+        lines.push(`    所需文件：${res.missing_docs.join('、')}`);
+      }
+    }
+  }
+
   return lines.join('\n');
 }
 
@@ -4452,6 +4872,10 @@ function renderHomeAccessibilityForm(caseId) {
     <h3>7. 總結（自動彙整）</h3>
     ${summaryHtml}
   </div>
+
+  <div class="clear-module-section">
+    <button class="clear-module-btn" data-clear-module="homeAccessibility">清除此評估的所有資料</button>
+  </div>
   `;
 }
 
@@ -4757,16 +5181,52 @@ function showToast(msg) {
 }
 
 let saveTimer;
-function showSaved() {
-  const el = document.getElementById('saveIndicator');
-  el.textContent = '儲存中…';
-  el.classList.remove('saved');
-  clearTimeout(saveTimer);
-  saveTimer = setTimeout(() => {
-    el.textContent = '已儲存';
-    el.classList.add('saved');
-  }, 250);
-}
+function showSaved() {}
+
+/* ==========================================================================
+   Clear module handler (delegated from body, covers all assessment views)
+   ========================================================================== */
+document.body.addEventListener('click', e => {
+  const clearModule = e.target.getAttribute('data-clear-module');
+  if (!clearModule) return;
+  const c = state.cases[state.currentCaseId];
+  if (!c) return;
+  const moduleNames = {
+    stair: '爬梯機', wheelchair: '輪椅', cushion: '座墊',
+    airbed: '床組', shower: '沐浴便盆', walker: '助步車',
+    transfer: '移位', homeAccessibility: '居家無障礙'
+  };
+  if (!confirm(`確定要清除「${moduleNames[clearModule] || clearModule}」的所有評估資料嗎？\n此操作無法復原。`)) return;
+  if (clearModule === 'stair') {
+    c.blocks = [];
+  } else if (clearModule === 'wheelchair') {
+    c.wheelchair = defaultWheelchair();
+  } else if (clearModule === 'cushion') {
+    c.cushion = defaultCushion();
+  } else if (clearModule === 'airbed') {
+    c.airbed = defaultAirbed();
+  } else if (clearModule === 'shower') {
+    c.shower = defaultShower();
+  } else if (clearModule === 'walker') {
+    c.walker = defaultWalker();
+  } else if (clearModule === 'transfer') {
+    c.transfer = defaultTransfer();
+  } else if (clearModule === 'homeAccessibility') {
+    c.homeAccessibility = defaultHomeAccessibility();
+  }
+  touchCase(c.id);
+  saveState();
+  // Re-render the current form
+  if (clearModule === 'stair') renderEditor();
+  else if (clearModule === 'wheelchair') renderWheelchairForm(c.id);
+  else if (clearModule === 'cushion') renderCushionForm(c.id);
+  else if (clearModule === 'airbed') renderAirbedForm(c.id);
+  else if (clearModule === 'shower') renderShowerForm(c.id);
+  else if (clearModule === 'walker') renderWalkerForm(c.id);
+  else if (clearModule === 'transfer') renderTransferForm(c.id);
+  else if (clearModule === 'homeAccessibility') renderHomeAccessibilityForm(c.id);
+  showToast('已清除評估資料');
+});
 
 /* ==========================================================================
    Event wiring
@@ -4785,10 +5245,60 @@ document.getElementById('newCaseName').addEventListener('keydown', e => {
 });
 
 document.getElementById('caseList').addEventListener('click', e => {
+  // 刪除個案
   const delId = e.target.getAttribute('data-del');
   if (delId) { deleteCase(delId); return; }
+
+  // 修改/完成按鈕：切換 badge 編輯模式
+  const toggleId = e.target.getAttribute('data-toggle-edit');
+  if (toggleId) {
+    editingCaseId = editingCaseId === toggleId ? null : toggleId;
+    renderList();
+    return;
+  }
+
+  // 徽章 × 按鈕：清除特定模組資料
+  const removeModule = e.target.getAttribute('data-remove-module');
+  const removeCaseId = e.target.getAttribute('data-case-id');
+  if (removeModule && removeCaseId) {
+    const c = state.cases[removeCaseId];
+    if (!c) return;
+    const moduleNames = {
+      stair: '爬梯機', wheelchair: '輪椅', cushion: '座墊',
+      airbed: '床組', shower: '沐浴便盆', walker: '助步車',
+      transfer: '移位', homeAccessibility: '居家無障礙'
+    };
+    if (!confirm(`確定要清除「${moduleNames[removeModule] || removeModule}」的所有評估資料嗎？`)) return;
+    if (removeModule === 'stair') {
+      c.blocks = [];
+    } else if (removeModule === 'wheelchair') {
+      c.wheelchair = defaultWheelchair();
+    } else if (removeModule === 'cushion') {
+      c.cushion = defaultCushion();
+    } else if (removeModule === 'airbed') {
+      c.airbed = defaultAirbed();
+    } else if (removeModule === 'shower') {
+      c.shower = defaultShower();
+    } else if (removeModule === 'walker') {
+      c.walker = defaultWalker();
+    } else if (removeModule === 'transfer') {
+      c.transfer = defaultTransfer();
+    } else if (removeModule === 'homeAccessibility') {
+      c.homeAccessibility = defaultHomeAccessibility();
+    }
+    touchCase(c.id);
+    saveState();
+    renderList();
+    return;
+  }
+
+  // 開啟個案（點整張卡片，但排除按鈕）
+  if (e.target.closest('button')) return;
   const card = e.target.closest('[data-open-case]');
-  if (card) showMainMenu(card.getAttribute('data-open-case'));
+  if (card) {
+    editingCaseId = null;
+    showMainMenu(card.getAttribute('data-open-case'));
+  }
 });
 
 document.getElementById('backBtn').addEventListener('click', () => { if (backFn) backFn(); });
@@ -4802,6 +5312,97 @@ document.getElementById('menuAirbedBtn').addEventListener('click', () => showAir
 document.getElementById('menuWalkerBtn').addEventListener('click', () => showWalker(state.currentCaseId));
 document.getElementById('menuShowerBtn').addEventListener('click', () => showShower(state.currentCaseId));
 document.getElementById('menuHomeAccessBtn').addEventListener('click', () => showHomeAccessibility(state.currentCaseId));
+
+// Long-press on menu cards to clear module data
+(function() {
+  const cardModuleMap = {
+    menuStairBtn:       { key: 'stair',             label: '爬梯機' },
+    menuWheelchairBtn:  { key: 'wheelchair',         label: '輪椅' },
+    menuTransferBtn:    { key: 'transfer',           label: '移位輔具' },
+    menuCushionBtn:     { key: 'cushion',            label: '輪椅座墊' },
+    menuAirbedBtn:      { key: 'airbed',             label: '氣墊床／電動床' },
+    menuWalkerBtn:      { key: 'walker',             label: '帶輪型助步車' },
+    menuShowerBtn:      { key: 'shower',             label: '沐浴椅／便盆椅' },
+    menuHomeAccessBtn:  { key: 'homeAccessibility',  label: '居家無障礙' }
+  };
+
+  let lpTimer = null;
+  let lpMoved = false;
+
+  function cancelLP() {
+    clearTimeout(lpTimer);
+    lpTimer = null;
+  }
+
+  function showLPMenu(moduleKey, moduleLabel) {
+    let overlay = document.createElement('div');
+    overlay.className = 'lp-overlay';
+    overlay.innerHTML = `
+      <div class="lp-menu">
+        <div class="lp-menu-title">${escapeHtml(moduleLabel)}</div>
+        <button class="lp-menu-item danger" id="lpClearBtn">清除評估資料</button>
+        <button class="lp-menu-cancel" id="lpCancelBtn">取消</button>
+      </div>`;
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#lpClearBtn').addEventListener('click', () => {
+      document.body.removeChild(overlay);
+      const c = state.cases[state.currentCaseId];
+      if (!c) return;
+      if (!confirm(`確定要清除「${moduleLabel}」的所有評估資料嗎？\n此操作無法復原。`)) return;
+      if (moduleKey === 'stair') c.blocks = [];
+      else if (moduleKey === 'wheelchair') c.wheelchair = defaultWheelchair();
+      else if (moduleKey === 'cushion') c.cushion = defaultCushion();
+      else if (moduleKey === 'airbed') c.airbed = defaultAirbed();
+      else if (moduleKey === 'shower') c.shower = defaultShower();
+      else if (moduleKey === 'walker') c.walker = defaultWalker();
+      else if (moduleKey === 'transfer') c.transfer = defaultTransfer();
+      else if (moduleKey === 'homeAccessibility') c.homeAccessibility = defaultHomeAccessibility();
+      touchCase(c.id);
+      saveState();
+      showToast('已清除評估資料');
+    });
+
+    overlay.querySelector('#lpCancelBtn').addEventListener('click', () => {
+      document.body.removeChild(overlay);
+    });
+
+    overlay.addEventListener('click', e => {
+      if (e.target === overlay) document.body.removeChild(overlay);
+    });
+  }
+
+  Object.entries(cardModuleMap).forEach(([btnId, { key, label }]) => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+
+    btn.addEventListener('touchstart', e => {
+      lpMoved = false;
+      lpTimer = setTimeout(() => {
+        e.preventDefault();
+        const c = state.cases[state.currentCaseId];
+        if (c && !moduleHasData(c, key)) { showToast(`「${label}」尚未填寫任何資料`); return; }
+        showLPMenu(key, label);
+      }, 500);
+    }, { passive: false });
+
+    btn.addEventListener('touchmove', () => { lpMoved = true; cancelLP(); });
+    btn.addEventListener('touchend', () => { if (!lpMoved) cancelLP(); });
+    btn.addEventListener('touchcancel', cancelLP);
+
+    btn.addEventListener('mousedown', () => {
+      lpMoved = false;
+      lpTimer = setTimeout(() => {
+        const c = state.cases[state.currentCaseId];
+        if (c && !moduleHasData(c, key)) { showToast(`「${label}」尚未填寫任何資料`); return; }
+        showLPMenu(key, label);
+      }, 500);
+    });
+    btn.addEventListener('mousemove', () => { lpMoved = true; cancelLP(); });
+    btn.addEventListener('mouseup', () => { if (!lpMoved) cancelLP(); });
+    btn.addEventListener('mouseleave', cancelLP);
+  });
+})();
 
 // mainMenuView basic info — event delegation for wc fields + tubes checkbox
 document.getElementById('mainMenuView').addEventListener('change', e => {
@@ -5192,15 +5793,13 @@ document.getElementById('newCaseDate').value = new Date().toISOString().slice(0,
 </script>
 <button id="fabBack" aria-label="返回上一頁" style="display:none;">&#8592;</button>
 <script>
-// FAB 返回按鈕 + 儲存指示器：同步 backBtn 顯示狀態
+// FAB 返回按鈕：同步 backBtn 顯示狀態
 (function() {
   const fab = document.getElementById('fabBack');
   const btn = document.getElementById('backBtn');
-  const saveInd = document.getElementById('saveIndicator');
   new MutationObserver(function() {
     const show = btn.style.display !== 'none';
     fab.style.display = show ? 'flex' : 'none';
-    saveInd.style.display = show ? '' : 'none';
   }).observe(btn, { attributes: true, attributeFilter: ['style'] });
   fab.addEventListener('click', function() { if (typeof backFn !== 'undefined' && backFn) backFn(); });
 })();
