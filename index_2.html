@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -1049,6 +1049,11 @@
     font-size: 13px;
     font-style: italic;
   }
+  .ha-range-wrap { display: flex; align-items: center; gap: 4px; width: 100%; }
+  .ha-range-wrap .wc-num-input { flex: 1; min-width: 0; }
+  .ha-range-sep { color: var(--sub); font-size: 14px; flex-shrink: 0; }
+  .ha-range-wrap .unit { flex-shrink: 0; }
+  .ha-row-measurements { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
   .ha-add-btn { border-color: var(--ha); color: var(--ha); }
   .ha-add-btn:active { background: var(--ha-soft); }
   .ha-summary-section { background: #faf7f0; border-left: 4px solid var(--ha); }
@@ -1133,7 +1138,6 @@
     border-color: var(--brand);
   }
   .menu-icon  { font-size: 30px; line-height: 1; margin-bottom: 2px; }
-  .menu-icon img { width: 50px; height: 50px; object-fit: contain; display: block; }
   .menu-label { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: 0.1px; }
   .menu-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
@@ -1445,35 +1449,35 @@
     <div id="menuBasicInfo"></div>
     <div class="menu-grid">
       <button class="menu-card stair-card" id="menuStairBtn">
-        <div class="menu-icon"><img src="icon/stair%20climbing.png" alt="爬梯機"></div>
+        <div class="menu-icon">🏠</div>
         <div class="menu-label">爬梯機</div>
       </button>
       <button class="menu-card ha-card" id="menuHomeAccessBtn">
-        <div class="menu-icon"><img src="icon/home%20accessibility.png?v=2" alt="居家無障礙"></div>
+        <div class="menu-icon">🛠</div>
         <div class="menu-label">居家無障礙</div>
       </button>
       <button class="menu-card transfer-card" id="menuTransferBtn">
-        <div class="menu-icon"><img src="icon/transfer.png" alt="移位輔具"></div>
+        <div class="menu-icon">🔄</div>
         <div class="menu-label">移位輔具</div>
       </button>
       <button class="menu-card cushion-card" id="menuCushionBtn">
-        <div class="menu-icon"><img src="icon/cushion.png" alt="輪椅座墊"></div>
+        <div class="menu-icon">💺</div>
         <div class="menu-label">輪椅座墊</div>
       </button>
       <button class="menu-card airbed-card" id="menuAirbedBtn">
-        <div class="menu-icon"><img src="icon/bed.png" alt="氣墊床"></div>
+        <div class="menu-icon">🛏</div>
         <div class="menu-label">氣墊床／電動床</div>
       </button>
       <button class="menu-card wc-card" id="menuWheelchairBtn">
-        <div class="menu-icon"><img src="icon/wheelchair.png" alt="輪椅"></div>
+        <div class="menu-icon">♿</div>
         <div class="menu-label">輪椅</div>
       </button>
       <button class="menu-card walker-card" id="menuWalkerBtn">
-        <div class="menu-icon"><img src="icon/rollator.png" alt="帶輪型助步車"></div>
+        <div class="menu-icon">🚶</div>
         <div class="menu-label">帶輪型助步車</div>
       </button>
       <button class="menu-card shower-card" id="menuShowerBtn">
-        <div class="menu-icon"><img src="icon/shower%20chair.png" alt="沐浴椅"></div>
+        <div class="menu-icon">🚿</div>
         <div class="menu-label">沐浴椅／便盆椅</div>
       </button>
     </div>
@@ -1770,6 +1774,19 @@ function loadState() {
         c[key].subsidy = c[key].subsidy ? [c[key].subsidy] : [];
       }
     });
+    // Migrate: ramp_length/ramp_width to min/max fields
+    if (c.homeAccessibility && c.homeAccessibility.assistive_devices) {
+      c.homeAccessibility.assistive_devices.forEach(row => {
+        if (row.ramp_length !== undefined && !row.ramp_length_min) {
+          row.ramp_length_min = row.ramp_length;
+        }
+        if (row.ramp_width !== undefined && !row.ramp_width_min) {
+          row.ramp_width_min = row.ramp_width;
+        }
+        delete row.ramp_length;
+        delete row.ramp_width;
+      });
+    }
   }
 }
 
@@ -1976,7 +1993,7 @@ let editingCaseId = null;
 function moduleHasData(c, key) {
   switch (key) {
     case 'stair': return !!(c.blocks && c.blocks.some(b => b.type === 'stair' && b.steps.some(s => s.height || s.slope)));
-    case 'wheelchair': { const wc = c.wheelchair; return !!(wc && (wc.height || wc.weight || wc.seatWidth || wc.hipToKnee || wc.kneeToFoot || wc.shoulderHeight || wc.staticSeating || (Array.isArray(wc.subsidy) && wc.subsidy.length > 0) || (Array.isArray(wc.subsidyItems) && wc.subsidyItems.length > 0))); }
+    case 'wheelchair': { const wc = c.wheelchair; return !!(wc && (wc.seatWidth || wc.hipToKnee || wc.kneeToFoot || wc.shoulderHeight || wc.shoulderBladeHeight || wc.occipitalHeight || wc.chestWidth || wc.chestDepth || wc.shoulderDistance || wc.upperArmVertical || wc.staticSeating || wc.mobilitySeating || wc.hipLimitL || wc.hipLimitR || wc.hipNoLimitL || wc.hipNoLimitR || wc.kneeLimitL || wc.kneeLimitR || wc.kneeNoLimitL || wc.kneeNoLimitR || wc.headControl || wc.hip || wc.knee || wc.cognition || wc.visualPerception || wc.skinSensation || wc.pressureInjury || wc.transferAbility || wc.abnormalTone || (Array.isArray(wc.fallingDirection) && wc.fallingDirection.length > 0) || (Array.isArray(wc.pelvisPosture) && wc.pelvisPosture.length > 0) || (Array.isArray(wc.pelvisSlide) && wc.pelvisSlide.length > 0) || (Array.isArray(wc.spine) && wc.spine.length > 0) || (Array.isArray(wc.ankle) && wc.ankle.length > 0) || (Array.isArray(wc.subsidy) && wc.subsidy.length > 0) || (Array.isArray(wc.subsidyItems) && wc.subsidyItems.length > 0))); }
     case 'shower': { const sh = c.shower; return !!(sh && ((Array.isArray(sh.pelvis) && sh.pelvis.length > 0) || sh.hipWidth || sh.sittingBalance || (Array.isArray(sh.subsidyItems) && sh.subsidyItems.length > 0))); }
     case 'walker': { const wk = c.walker; return !!(wk && (wk.toneHead || wk.sittingBalance || wk.sitToStand || wk.handleHeight)); }
     case 'transfer': { const tf = c.transfer; return !!(tf && (tf.waist || tf.sittingBalance || tf.sitToStand || (Array.isArray(tf.resultItems) && tf.resultItems.length > 0))); }
@@ -4771,19 +4788,19 @@ const HA_RENO_ITEMS = [
   ['range_hood','改善抽油煙機'], ['partition','隔間'], ['wall_shower','壁掛式淋浴台']
 ];
 const HA_RAMP_GRADES = [
-  ['under_90cm','A. 未達 90 公分'],
-  ['90cm_up','B. 90 公分以上'],
-  ['120cm_up','C. 120 公分以上'],
-  ['150cm_up','D. 150 公分以上']
+  ['under_90cm','未達 90 公分'],
+  ['90cm_up','90 公分以上'],
+  ['120cm_up','120 公分以上'],
+  ['150cm_up','150 公分以上']
 ];
 const HA_DOOR_SPECS = [
   ['simple','A. 簡易型（門片變更／軌道）'],
   ['advanced','B. 進階型（門框施工／加寬／新增）']
 ];
 const HA_HANDRAIL_TYPES = [
-  ['L_type','A. L 型'],
-  ['vertical','B. 垂直一字型'],
-  ['horizontal','C. 水平一字型']
+  ['L_type','L 型'],
+  ['vertical','垂直一字型'],
+  ['horizontal','水平一字型']
 ];
 const HA_LEVELDIFF_SPECS = [
   ['under_10cm','10 公分以下'],
@@ -4878,13 +4895,13 @@ function renderHomeAccessibilityForm(caseId) {
   </div>
 
   <div class="wc-section">
-    <h3>4. 輔具項目</h3>
+    <h3>4. 建議輔具項目</h3>
     <div class="ha-rows" id="haAidRows">${aidRowsHtml || '<div class="ha-empty">尚未新增輔具項目</div>'}</div>
     <button class="add-step-btn ha-add-btn" data-ha-add-row="assistive_devices">＋ 新增輔具項目</button>
   </div>
 
   <div class="wc-section">
-    <h3>5. 修繕項目</h3>
+    <h3>5. 建議修繕項目</h3>
     <div class="ha-rows" id="haRenoRows">${renoRowsHtml || '<div class="ha-empty">尚未新增修繕項目</div>'}</div>
     <button class="add-step-btn ha-add-btn" data-ha-add-row="renovations">＋ 新增修繕項目</button>
   </div>
@@ -4943,6 +4960,23 @@ function haNumField(list, idx, field, label, value) {
     </div>`;
 }
 
+function haRangeField(list, idx, fieldMin, fieldMax, label, valMin, valMax) {
+  return `
+    <div class="ha-row-field">
+      <label class="wc-label">${escapeHtml(label)}</label>
+      <div class="ha-range-wrap">
+        <input type="number" inputmode="decimal" step="0.1" min="0" class="wc-num-input"
+               data-ha-row-list="${list}" data-ha-row-index="${idx}" data-ha-row-field="${fieldMin}"
+               value="${escapeAttr(valMin)}" placeholder="最小">
+        <span class="ha-range-sep">–</span>
+        <input type="number" inputmode="decimal" step="0.1" min="0" class="wc-num-input"
+               data-ha-row-list="${list}" data-ha-row-index="${idx}" data-ha-row-field="${fieldMax}"
+               value="${escapeAttr(valMax)}" placeholder="最大">
+        <span class="unit">cm</span>
+      </div>
+    </div>`;
+}
+
 function renderHaAidRow(row, idx, locOptionsHtml) {
   const itemOpts = ['<option value="">— 選擇品項 —</option>']
     .concat(HA_AID_ITEMS.map(([v,l]) =>
@@ -4960,9 +4994,9 @@ function renderHaAidRow(row, idx, locOptionsHtml) {
       </div>`;
     if (row.spec) {
       specHtml += `
-      <div class="ha-row-grid3">
-        ${haNumField('assistive_devices', idx, 'ramp_length', '長度', row.ramp_length)}
-        ${haNumField('assistive_devices', idx, 'ramp_width', '寬度', row.ramp_width)}
+      <div class="ha-row-measurements">
+        ${haRangeField('assistive_devices', idx, 'ramp_length_min', 'ramp_length_max', '長度', row.ramp_length_min, row.ramp_length_max)}
+        ${haRangeField('assistive_devices', idx, 'ramp_width_min', 'ramp_width_max', '寬度', row.ramp_width_min, row.ramp_width_max)}
         ${haNumField('assistive_devices', idx, 'ramp_door_clear_width', '門前淨寬', row.ramp_door_clear_width)}
       </div>`;
     }
@@ -5082,11 +5116,12 @@ function renderHaSummary(ha) {
   });
 
   const all = [...(ha.assistive_devices || []), ...(ha.renovations || [])];
-  const counts = {};
+  const countMap = {};
   all.forEach(r => {
-    if (r.item && r.item !== 'fixed_handrail') {
-      counts[r.item] = (counts[r.item] || 0) + 1;
-    }
+    if (!r.item || r.item === 'fixed_handrail') return;
+    const mapKey = (r.item === 'portable_ramp' && r.spec) ? `${r.item}__${r.spec}` : r.item;
+    if (!countMap[mapKey]) countMap[mapKey] = { item: r.item, spec: (r.item === 'portable_ramp' ? r.spec : null), count: 0 };
+    countMap[mapKey].count++;
   });
 
   const aidSet = new Set(HA_AID_ITEMS.map(([v]) => v));
@@ -5095,11 +5130,12 @@ function renderHaSummary(ha) {
     const note = handrailHasEmpty ? '<span class="ha-summary-warn">（部分項目尚未填寫長度）</span>' : '';
     rows.push(`<tr><td>修繕</td><td>固定式扶手</td><td>共 ${handrailTotal} 公分${note}</td></tr>`);
   }
-  Object.keys(counts).forEach(itemKey => {
-    const isAid = aidSet.has(itemKey);
+  Object.values(countMap).forEach(({ item, spec, count }) => {
+    const isAid = aidSet.has(item);
     const cat = isAid ? '輔具' : '修繕';
-    const label = haLabelOf(isAid ? HA_AID_ITEMS : HA_RENO_ITEMS, itemKey);
-    rows.push(`<tr><td>${cat}</td><td>${escapeHtml(label)}</td><td>共 ${counts[itemKey]} 處</td></tr>`);
+    let label = haLabelOf(isAid ? HA_AID_ITEMS : HA_RENO_ITEMS, item);
+    if (spec) label = `${label}-${haLabelOf(HA_RAMP_GRADES, spec)}`;
+    rows.push(`<tr><td>${cat}</td><td>${escapeHtml(label)}</td><td>共 ${count} 處</td></tr>`);
   });
 
   if (rows.length === 0) {
@@ -5154,7 +5190,7 @@ function saveHaRowField(list, idx, field, value) {
   arr[idx][field] = value;
   if (field === 'item') {
     arr[idx].spec = null;
-    ['ramp_length','ramp_width','ramp_door_clear_width',
+    ['ramp_length_min','ramp_length_max','ramp_width_min','ramp_width_max','ramp_door_clear_width',
      'handrail_height','handrail_length','handrail_length_vertical','handrail_length_horizontal']
       .forEach(k => delete arr[idx][k]);
   }
