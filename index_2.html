@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
@@ -1141,6 +1141,7 @@
   .menu-label { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: 0.1px; }
   .menu-desc  { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
+  .menu-card.inventory-card { border-left: 4px solid #6366f1; }
   .menu-card.stair-card    { border-left: 4px solid #0284c7; }
   .menu-card.ha-card       { border-left: 4px solid #0369a1; }
   .menu-card.transfer-card { border-left: 4px solid #d97706; }
@@ -1321,6 +1322,97 @@
     border: 1px solid #1e4a6e;
   }
 
+  /* ── 輔具盤點 ── */
+  .inventory-grade-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 4px 0;
+  }
+  .inventory-grade-tab {
+    padding: 10px 14px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    flex: 1 1 auto;
+    min-width: 60px;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .inventory-grade-tab.active {
+    background: #0369a1;
+    color: #fff;
+    border-color: #0369a1;
+  }
+  .inventory-sub-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .inventory-sub-tab {
+    flex: 1;
+    padding: 12px 10px;
+    border: 2px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .inventory-sub-tab.active {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-color: #0369a1;
+  }
+  .inventory-grade-desc {
+    background: var(--surface-2);
+    border-left: 3px solid #0369a1;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--ink);
+    border-radius: 6px;
+    line-height: 1.6;
+  }
+  .inventory-section {
+    background: #fff;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .inventory-section h3 {
+    margin: 0 0 8px;
+    font-size: 14px;
+    color: #0369a1;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .inventory-section ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+  .inventory-section li {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.8;
+  }
+  .inventory-empty {
+    background: #fff;
+    border: 2px dashed var(--line);
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
   /* ── FAB 返回按鈕 ── */
   #fabBack {
     position: fixed;
@@ -1480,6 +1572,10 @@
         <div class="menu-icon">🚿</div>
         <div class="menu-label">沐浴椅／便盆椅</div>
       </button>
+      <button class="menu-card inventory-card" id="menuInventoryBtn">
+        <div class="menu-icon">📋</div>
+        <div class="menu-label">輔具盤點</div>
+      </button>
     </div>
   </section>
 
@@ -1566,6 +1662,13 @@
   <!-- Home Accessibility View -->
   <section id="homeAccessibilityView" style="display:none;">
     <div id="homeAccessibilityFormContainer"></div>
+  </section>
+
+  <!-- Inventory View -->
+  <section id="inventoryView" style="display:none;">
+    <div class="inventory-grade-tabs" id="invGradeTabs"></div>
+    <div class="inventory-sub-tabs" id="invSubTabs"></div>
+    <div class="inventory-content" id="invContent"></div>
   </section>
 
 </div>
@@ -4583,9 +4686,128 @@ function updateWheelchairDimensions() {
    Navigation
    ========================================================================== */
 function hideAllViews() {
-  ['mainMenuView', 'listView', 'editorView', 'wheelchairView', 'cushionView', 'showerView', 'walkerView', 'transferView', 'airbedView', 'homeAccessibilityView'].forEach(id => {
+  ['mainMenuView', 'listView', 'editorView', 'wheelchairView', 'cushionView', 'showerView', 'walkerView', 'transferView', 'airbedView', 'homeAccessibilityView', 'inventoryView'].forEach(id => {
     document.getElementById(id).style.display = 'none';
   });
+}
+
+/* ==========================================================================
+   輔具盤點（純查詢參考工具，不關聯個案）
+   ========================================================================== */
+const inventoryData = {
+  '2': {
+    name: '分級二', desc: '平坦地面可放手行走',
+    sub: {
+      '2':  { name: '獨立（2a）', desc: '於平坦地面具備獨立行走能力。', sections: [
+        { title: '協助步行', items: ['單點手杖', '前臂拐杖', '腋下拐杖', '四腳手杖', '助行器', '助步車'] },
+        { title: '預防跌倒', items: ['無輪便盆洗澡椅', '沐浴椅凳'] },
+        { title: '帶輪乘坐', items: ['有輪便盆洗澡椅'] }
+      ]},
+      '2b': { name: '非獨立（2b）', desc: '非獨立；包含分級2所有建議，另增額外需求。', sections: [
+        { title: '協助步行', items: ['單點手杖', '前臂拐杖', '腋下拐杖', '四腳手杖', '助行器', '助步車'] },
+        { title: '預防跌倒', items: ['無輪便盆洗澡椅', '沐浴椅凳'] },
+        { title: '帶輪乘坐', items: ['有輪便盆洗澡椅'] },
+        { title: '額外需求（2b）', items: ['輪椅', '移位腰帶'] }
+      ]}
+    }
+  },
+  '3': {
+    name: '分級三', desc: '扶持穩定物能行走',
+    sub: {
+      '3':  { name: '獨立（3a）', desc: '需扶持穩定物方能跨步行走。', sections: [
+        { title: '協助步行', items: ['前臂拐杖', '腋下拐杖', '四腳手杖', '助行器', '助步車'] },
+        { title: '帶輪乘坐', items: ['輪椅', '有輪便盆洗澡椅'] },
+        { title: '預防跌倒', items: ['無輪便盆洗澡椅', '沐浴椅凳'] }
+      ]},
+      '3b': { name: '非獨立（3b）', desc: '非獨立；包含分級3所有建議，另增額外需求。', sections: [
+        { title: '協助步行', items: ['前臂拐杖', '腋下拐杖', '四腳手杖', '助行器', '助步車'] },
+        { title: '帶輪乘坐', items: ['輪椅', '有輪便盆洗澡椅'] },
+        { title: '預防跌倒', items: ['無輪便盆洗澡椅', '沐浴椅凳'] },
+        { title: '額外需求（3b）', items: ['具移位功能的輪椅或便盆洗澡椅', '移位腰帶'] }
+      ]}
+    }
+  },
+  '4': {
+    name: '分級四', desc: '無行走能力',
+    sub: {
+      '4a': { name: '4a（可站起）', desc: '引導下可扶持穩定物站起。', sections: [
+        { title: '協助步行', items: ['四腳手杖', '助行器', '助步車'] },
+        { title: '轉移位',   items: ['具移位功能的輪椅或便盆洗澡椅', '移位腰帶', '移位轉盤', '坐姿移位(板/布/墊)', '人力移位吊帶', '站立式或懸吊式移位機'] }
+      ]},
+      '4b': { name: '4b（無法站起）', desc: '引導下無法站起，但可坐於一般椅子。', sections: [
+        { title: '帶輪乘坐',     items: ['輪椅', '有輪便盆洗澡椅'] },
+        { title: '轉移位',       items: ['具移位功能的輪椅或便盆洗澡椅', '移位腰帶', '坐姿移位(板/布/墊)', '躺姿移位(布/墊)', '人力移位吊帶', '站立式或懸吊式移位機'] },
+        { title: '擺位/姿勢變換', items: ['具仰躺/傾倒功能的輪椅或便盆洗澡椅', '擺位系統', '居家用照顧床'] },
+        { title: '壓傷預防',     items: ['輪椅座墊', '氣墊床'] }
+      ]}
+    }
+  },
+  '5': {
+    name: '分級五', desc: '無法坐一般椅',
+    sub: null,
+    sections: [
+      { title: '帶輪乘坐',     items: ['輪椅', '具仰躺/傾倒/移位功能的輪椅或便盆洗澡椅'] },
+      { title: '轉移位',       items: ['移位腰帶', '坐姿移位(板/布/墊)', '躺姿移位(布/墊)', '人力移位吊帶', '懸吊式移位機'] },
+      { title: '擺位/姿勢變換', items: ['擺位系統', '居家用照顧床'] },
+      { title: '壓傷預防',     items: ['輪椅座墊', '氣墊床'] }
+    ]
+  }
+};
+
+function showInventory() {
+  hideAllViews();
+  document.getElementById('inventoryView').style.display = '';
+  document.getElementById('backBtn').style.display = '';
+  document.getElementById('headerTitle').textContent = '輔具盤點';
+  document.getElementById('subtitle').textContent = '依能力分級查詢建議輔具';
+  backFn = () => showMainMenu(state.currentCaseId);
+  renderInventoryTabs();
+  window.scrollTo(0, 0);
+}
+
+function renderInventoryTabs() {
+  const tabs = document.getElementById('invGradeTabs');
+  tabs.innerHTML = Object.keys(inventoryData).map(k =>
+    `<button class="inventory-grade-tab" data-grade="${k}">${inventoryData[k].name}</button>`
+  ).join('');
+  document.getElementById('invSubTabs').innerHTML = '';
+  document.getElementById('invContent').innerHTML = '';
+  tabs.querySelectorAll('.inventory-grade-tab').forEach(btn => {
+    btn.addEventListener('click', () => selectMainGrade(btn.dataset.grade));
+  });
+}
+
+function selectMainGrade(grade) {
+  document.querySelectorAll('.inventory-grade-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.grade === grade));
+  document.getElementById('invSubTabs').innerHTML = '';
+  document.getElementById('invContent').innerHTML = '';
+  const data = inventoryData[grade];
+  if (data.sub) {
+    const subEl = document.getElementById('invSubTabs');
+    subEl.innerHTML = Object.keys(data.sub).map(k =>
+      `<button class="inventory-sub-tab" data-grade="${grade}" data-sub="${k}">${data.sub[k].name}</button>`
+    ).join('');
+    subEl.querySelectorAll('.inventory-sub-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        subEl.querySelectorAll('.inventory-sub-tab').forEach(b =>
+          b.classList.toggle('active', b === btn));
+        renderInventorySections(data.sub[btn.dataset.sub]);
+      });
+    });
+  } else {
+    renderInventorySections(data);
+  }
+}
+
+function renderInventorySections(data) {
+  const sectionsHtml = data.sections.length === 0
+    ? '<div class="inventory-empty">此分級無特定建議輔具</div>'
+    : data.sections.map(s =>
+      `<div class="inventory-section"><h3>${escapeHtml(s.title)}</h3><ul>${s.items.map(i => `<li>${escapeHtml(i)}</li>`).join('')}</ul></div>`
+    ).join('');
+  document.getElementById('invContent').innerHTML =
+    `<div class="inventory-grade-desc">${escapeHtml(data.desc)}</div>${sectionsHtml}`;
 }
 
 function showMainMenu(caseId) {
@@ -5383,6 +5605,7 @@ document.getElementById('menuAirbedBtn').addEventListener('click', () => showAir
 document.getElementById('menuWalkerBtn').addEventListener('click', () => showWalker(state.currentCaseId));
 document.getElementById('menuShowerBtn').addEventListener('click', () => showShower(state.currentCaseId));
 document.getElementById('menuHomeAccessBtn').addEventListener('click', () => showHomeAccessibility(state.currentCaseId));
+document.getElementById('menuInventoryBtn').addEventListener('click', () => showInventory());
 
 // Long-press on menu cards to clear module data
 (function() {
